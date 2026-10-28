@@ -207,7 +207,7 @@ export function pinionShape(leaves: number, module: number): Shape {
   return gearShape({ teeth: leaves, module, boreRadius: module * 0.5, spokes: 0, toothTipScale: 1.15 });
 }
 
-/** A flat ribbon hand with a counterweight, extruded and bevelled. */
+/** A tapered baton hand with a counterweight tail, extruded and bevelled. */
 export function handShape(options: {
   length: number;
   width: number;
@@ -217,21 +217,24 @@ export function handShape(options: {
   holeRadius?: number;
 }): Shape {
   const { length, width, tail } = options;
-  const tipWidth = options.tipWidth ?? width * 0.32;
+  const tipWidth = options.tipWidth ?? width * 0.18;
   const shape = new Shape();
-  shape.moveTo(-width * 0.5, tail);
-  shape.lineTo(-width * 0.5, length * 0.36);
-  shape.lineTo(-width * 0.34, length * 0.8);
-  shape.lineTo(-tipWidth * 0.5, length);
-  shape.lineTo(tipWidth * 0.5, length);
-  shape.lineTo(width * 0.34, length * 0.8);
-  shape.lineTo(width * 0.5, length * 0.36);
-  shape.lineTo(width * 0.5, tail);
-  shape.lineTo(-width * 0.5, tail);
+  shape.moveTo(-width * 0.5, -tail);
+  shape.lineTo(-width * 0.34, -tail * 0.3);
+  shape.lineTo(-width * 0.5, length * 0.22);
+  shape.lineTo(-width * 0.32, length * 0.72);
+  shape.lineTo(-tipWidth * 0.5, length * 0.97);
+  shape.lineTo(0, length);
+  shape.lineTo(tipWidth * 0.5, length * 0.97);
+  shape.lineTo(width * 0.32, length * 0.72);
+  shape.lineTo(width * 0.5, length * 0.22);
+  shape.lineTo(width * 0.34, -tail * 0.3);
+  shape.lineTo(width * 0.5, -tail);
+  shape.lineTo(0, -tail * 1.15);
   shape.closePath();
   if (options.counterweight) {
     const counter = new Path();
-    counter.absarc(0, tail + options.counterweight * 0.2, options.counterweight, 0, Math.PI * 2, true);
+    counter.absarc(0, -tail * 0.55, options.counterweight, 0, Math.PI * 2, true);
     shape.holes.push(counter);
   }
   if (options.holeRadius) {

@@ -17,7 +17,6 @@ import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
 import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
 import { SMAAPass } from 'three/addons/postprocessing/SMAAPass.js';
-import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
 import { FinishLibrary } from './materials';
 import { createStudioScene, type Studio } from './studio';
 import { QUALITY, type QualityTier } from '../calibre/quality';
@@ -89,7 +88,6 @@ export class Engine {
   private readonly container: HTMLElement;
   private readonly still: boolean;
   private readonly smaa: SMAAPass;
-  private readonly bloom: UnrealBloomPass;
   private time = 0;
 
   constructor(options: EngineOptions) {
@@ -108,7 +106,7 @@ export class Engine {
     });
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, settings.maxPixelRatio));
     this.renderer.toneMapping = ACESFilmicToneMapping;
-    this.renderer.toneMappingExposure = 1.12;
+    this.renderer.toneMappingExposure = 1.02;
     this.renderer.outputColorSpace = SRGBColorSpace;
     this.renderer.shadowMap.enabled = true;
     this.renderer.shadowMap.type = PCFSoftShadowMap;
@@ -122,7 +120,7 @@ export class Engine {
     this.finishes = new FinishLibrary(this.renderer);
 
     this.controls = new OrbitControls(this.camera, this.canvas);
-    this.controls.target.set(1.5, -1.1, 0.4);
+    this.controls.target.set(0.6, -0.9, 0.4);
     this.controls.enableDamping = true;
     this.controls.dampingFactor = 0.055;
     this.controls.enablePan = false;
@@ -142,20 +140,12 @@ export class Engine {
 
     this.composer = new EffectComposer(this.renderer);
     this.composer.addPass(new RenderPass(this.scene, this.camera));
-    this.bloom = new UnrealBloomPass(
-      new Vector2(width * settings.bloomScale, height * settings.bloomScale),
-      0.12,
-      0.5,
-      1.15,
-    );
-    this.bloom.enabled = settings.bloom;
-    this.composer.addPass(this.bloom);
-
     this.outline = new OutlinePass(new Vector2(width, height), this.scene, this.camera);
-    this.outline.edgeStrength = 3.4;
-    this.outline.edgeGlow = 0.18;
+    this.outline.edgeStrength = 5.2;
+    this.outline.edgeGlow = 0.35;
     this.outline.edgeThickness = 1.1;
     this.outline.pulsePeriod = 0;
+    this.outline.enabled = false;
     this.outline.visibleEdgeColor.setHex(0xe8c98a);
     this.outline.hiddenEdgeColor.setHex(0x4b3c22);
     this.composer.addPass(this.outline);
@@ -169,7 +159,6 @@ export class Engine {
     this.gradePass = new ShaderPass(GradeShader);
     this.gradePass.uniforms.uGrain = { value: settings.grain ? 0.016 : 0 };
     this.composer.addPass(this.gradePass);
-
     this.applySize();
     if (typeof ResizeObserver !== 'undefined') {
       new ResizeObserver(() => this.applySize()).observe(this.container);
@@ -238,7 +227,6 @@ export class Engine {
     if (this.tier === 'lite') return;
     this.tier = 'lite';
     const settings = QUALITY.lite;
-    this.bloom.enabled = settings.bloom;
     this.smaa.enabled = settings.smaa;
     this.gradePass.uniforms.uGrain = { value: 0 };
     this.studio.keyLight.shadow.map?.dispose();

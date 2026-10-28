@@ -24,7 +24,7 @@ const browser = await chromium.launch({
 try {
   const page = await browser.newPage({
     viewport: { width: 1440, height: 900 },
-    deviceScaleFactor: 1.5,
+    deviceScaleFactor: 1,
   });
   const consoleErrors = [];
   page.on('console', (message) => {
@@ -32,8 +32,8 @@ try {
   });
   page.on('pageerror', (error) => consoleErrors.push(String(error)));
 
-  await page.goto(`${server.url}?still=1`, { waitUntil: 'networkidle' });
-  await page.waitForFunction(() => window.__openMovement !== undefined, null, { timeout: 30_000 });
+  await page.goto(`${server.url}?still=1`, { waitUntil: 'domcontentloaded' });
+  await page.waitForFunction(() => window.__openMovement !== undefined, null, { timeout: 60_000 });
   await page.evaluate(() => window.__openMovement.ready);
   await page.waitForFunction(() => document.querySelector('#app')?.getAttribute('data-ready') === 'true');
   await page.waitForTimeout(1400);
@@ -51,8 +51,11 @@ try {
   await page.evaluate(() => {
     window.__openMovement.clear();
     window.__openMovement.setExplode(1);
+    // The slider deliberately does not hijack the camera. The capture takes a
+    // clean side view so the separated layers read as a stack.
+    window.__openMovement.setView([168, -34, 34], [0.6, -0.9, 5.2]);
   });
-  await page.waitForTimeout(700);
+  await page.waitForTimeout(900);
   await page.screenshot({ path: path.join(evidence, 'exploded.png') });
   console.log('wrote docs/evidence/exploded.png');
 

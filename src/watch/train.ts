@@ -106,8 +106,8 @@ export function addWheel(ctx: WatchContext, spec: WheelSpec): Group {
 function buildBarrel(ctx: WatchContext): void {
   const build = ctx.part('barrel', { x: LAYOUT.barrel.x, y: LAYOUT.barrel.y, z: LAYOUT.barrel.z });
   const wheelZ = 0.2;
-  const drumOuter = 3.62;
-  const drumInner = 3.4;
+  const drumOuter = 4.05;
+  const drumInner = 3.85;
   const drumTop = 1.98;
 
   const pivot = new Group();
@@ -166,11 +166,11 @@ function buildBarrel(ctx: WatchContext): void {
   const arbor = ctx.part('barrel-arbor', { x: LAYOUT.barrel.x, y: LAYOUT.barrel.y, z: 1.4 }).mesh(
     latheAlongZ(
       [
-        new Vector2(0, 2.3),
-        new Vector2(0.28, 2.3),
-        new Vector2(0.4, 2.16),
-        new Vector2(0.4, 1.94),
-        new Vector2(0.3, 1.9),
+        new Vector2(0, 2.85),
+        new Vector2(0.28, 2.85),
+        new Vector2(0.4, 2.7),
+        new Vector2(0.4, 2.3),
+        new Vector2(0.3, 2.25),
         new Vector2(0.3, -2.42),
         new Vector2(0.36, -2.48),
         new Vector2(0, -2.52),
@@ -217,7 +217,7 @@ export function buildTrain(ctx: WatchContext): void {
     spokes: 5,
     drive: 'third',
     pinion: { leaves: 8, module: 0.12, z: -0.25, height: 0.66 },
-    arbor: { top: 0.1, bottom: -2.52 },
+    arbor: { top: 0.75, bottom: -2.52 },
   });
 
   addWheel(ctx, {
@@ -246,7 +246,7 @@ export function buildTrain(ctx: WatchContext): void {
     thickness: 0.2,
     toothStyle: 'escape',
     pinion: { leaves: 6, module: 0.12, z: -1.55, height: 0.5 },
-    arbor: { top: -1.1, bottom: -2.52 },
+    arbor: { top: 0.75, bottom: -2.52 },
   });
 
   // A polished hub cap where the hands stack.

@@ -25,8 +25,8 @@ export const CALIBRE = {
   /** The barrel turns once per six display hours, so 42 h of reserve is seven turns. */
   barrelHoursPerRevolution: 6,
   movementRadius: 15,
-  /** Outside of the case band, 19.6 mm: 39.2 mm across, the classic 40 mm vitrine. */
-  caseRadius: 19.6,
+  /** Outside of the case band, 17.42 mm: 34.84 mm across. */
+  caseRadius: 17.42,
   /** Composed moment: ten past ten, thirty-six seconds — hands clear of the balance. */
   startTimeSeconds: 10 * 3600 + 9 * 60 + 36,
   speeds: [1, 60, 600] as const,

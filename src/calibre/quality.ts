@@ -13,8 +13,6 @@ export interface QualitySettings {
   readonly tier: QualityTier;
   /** Renderer pixel-ratio cap. */
   readonly maxPixelRatio: number;
-  readonly bloom: boolean;
-  readonly bloomScale: number;
   readonly shadowMapSize: 1024 | 2048;
   readonly grain: boolean;
   readonly smaa: boolean;
@@ -25,8 +23,6 @@ export const QUALITY: Readonly<Record<QualityTier, QualitySettings>> = {
   high: {
     tier: 'high',
     maxPixelRatio: 2,
-    bloom: true,
-    bloomScale: 0.5,
     shadowMapSize: 2048,
     grain: true,
     smaa: true,
@@ -35,8 +31,6 @@ export const QUALITY: Readonly<Record<QualityTier, QualitySettings>> = {
   lite: {
     tier: 'lite',
     maxPixelRatio: 1.5,
-    bloom: true,
-    bloomScale: 0.35,
     shadowMapSize: 1024,
     grain: false,
     smaa: false,

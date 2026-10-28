@@ -4,9 +4,9 @@ The exhibit is a teaching object first and a physical simulation second. Three d
 
 ## The keyless works are presented on the dial side
 
-A conventional movement hides the crown wheel, ratchet, click and stem behind the main plate; from the dial side you see none of them. In MW-01 the keyless works sit at `z ≈ 2.1`, above the plate and the train, so winding can be watched: the crown turns, the crown wheel and ratchet step round, and the click rides the teeth.
+A conventional movement hides the crown wheel, ratchet, click and stem behind the main plate; from the dial side you see none of them. In MW-01 the keyless works sit at `z ≈ 2.2`, above the plate and the train, so winding can be watched: the crown turns, the crown wheel and ratchet step round, and the click rides the teeth.
 
-The exploded view still returns them to the **rear** of the stack (layer shift −4.5 mm), teaching the assembly order in which they belong. The cost is that during an explosion the keyless parts travel through the plate. The benefit is that the winding story is visible in the assembled object, which is the product's primary verb.
+The exploded view still returns them to the **rear** of the stack (layer shift −6.5 mm), teaching the assembly order in which they belong. The cost is that during an explosion the keyless parts travel through the plate. The benefit is that the winding story is visible in the assembled object, which is the product's primary verb.
 
 ## The chapter ring is dark rhodium, not sapphire
 

@@ -18,9 +18,9 @@ export const LAYER_SHIFT: Readonly<Record<AssemblyLayer, number>> = {
   escapement: 2.8,
   motion: 4.6,
   bridges: 7,
-  hands: 10,
-  chapter: 12.5,
-  case: 15,
+  chapter: 9,
+  hands: 11,
+  case: 13.5,
 };
 
 export function layerIndex(layer: AssemblyLayer): number {

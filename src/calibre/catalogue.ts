@@ -50,8 +50,8 @@ export const PART_LAYERS: readonly AssemblyLayer[] = [
   'escapement',
   'motion',
   'bridges',
-  'hands',
   'chapter',
+  'hands',
   'case',
 ];
 
@@ -148,7 +148,7 @@ export const CATALOGUE: readonly PartCatalogueEntry[] = [
     job: 'The drum that houses the mainspring and carries the wheel that starts the train.',
     detail:
       'The spring is coiled inside the drum; one end is hooked to the drum wall, the other to the arbor. As the spring unwinds it turns the drum, whose 72 teeth drive the center pinion. Seven turns of the barrel is a full 42-hour wind.',
-    spec: '72 teeth · 1 rev / 6 h · 7.2 mm drum',
+    spec: '72 teeth · 1 rev / 6 h · 8.1 mm drum',
     explodeBias: 0,
     targets: ['barrel'],
   },
@@ -352,7 +352,7 @@ export const CATALOGUE: readonly PartCatalogueEntry[] = [
     job: 'The flat spiral spring that returns the balance and sets the watch’s frequency.',
     detail:
       'It is thinner than a human hair and coils and uncoils with every swing, breathing evenly because its outer end is pinned while its inner end turns with the balance. Lengthening it through the regulator slows the watch; shortening it speeds it up.',
-    spec: 'Blued steel · 5 coils · 0.03 mm section',
+    spec: 'Blued steel · 6 coils · 0.03 mm section',
     explodeBias: 1.4,
     targets: ['hairspring'],
   },
@@ -412,7 +412,7 @@ export const CATALOGUE: readonly PartCatalogueEntry[] = [
     job: 'It shows the hour, turning once every twelve hours.',
     detail:
       'The hand is a tapered blade with a polished bevel and a brushed top, so it changes from bright to dark as it crosses the chapter ring. It is friction-fitted to the hour wheel and can be set without moving the train.',
-    spec: 'Gilt brass · 30° / hour · 9.0 mm',
+    spec: 'Gilt brass · 30° / hour · 8.55 mm',
     explodeBias: 0,
     targets: ['hour-hand'],
   },
@@ -424,7 +424,7 @@ export const CATALOGUE: readonly PartCatalogueEntry[] = [
     job: 'It shows the minute, turning once an hour.',
     detail:
       'Longer and thinner than the hour hand so the two cannot be confused at a glance. Its tail is sized to keep the blade balanced on its pipe as the watch changes position.',
-    spec: 'Gilt brass · 6° / minute · 12.6 mm',
+    spec: 'Gilt brass · 6° / minute · 11.95 mm',
     explodeBias: 0.5,
     targets: ['minute-hand'],
   },
@@ -453,16 +453,40 @@ export const CATALOGUE: readonly PartCatalogueEntry[] = [
     targets: ['chapter-ring'],
   },
   {
+    id: 'small-seconds',
+    name: 'Small-seconds subdial',
+    category: 'Display',
+    layer: 'chapter',
+    job: 'The little sixty-tick ring at four o’clock that makes the fourth wheel’s revolution readable.',
+    detail:
+      'A small seconds display is the gear train shown honestly: the hand is on the fourth-wheel arbor, so it turns exactly once a minute. The ring is a separate applied track, with longer ticks at every five seconds and a polished gold rim.',
+    spec: '60 ticks · 6.6 mm aperture · fourth-wheel drive',
+    explodeBias: 0.3,
+    targets: ['small-seconds'],
+  },
+  {
     id: 'case-band',
     name: 'Case band',
     category: 'Case',
     layer: 'case',
     job: 'The thin ring of polished metal that holds the movement and frames the dial.',
     detail:
-      'MW-01 uses an open case with no bezel over the movement, so the band is a frame rather than a lid. Its inner lip carries the movement holder; its outer face is polished to a mirror and left unbrushed.',
-    spec: 'Champagne gold · 34.0 mm · 1.45 mm band',
+      'MW-01 uses an open case with no bezel over the movement, so the band is a frame rather than a lid. Its inner lip carries the movement holder; the band itself is brushed, while the bezel above it is polished to a mirror.',
+    spec: 'Champagne gold · 34.8 mm · 1.8 mm band',
     explodeBias: 0,
     targets: ['case-band'],
+  },
+  {
+    id: 'case-back',
+    name: 'Case back',
+    category: 'Case',
+    layer: 'keyless',
+    job: 'The brushed plate that closes the movement from behind and carries its engraving.',
+    detail:
+      'The back is a separate pressing from the band, seated against the movement holder. It is brushed rather than polished so it does not compete with the dial, and the medallion is engraved with the calibre number and jewel count.',
+    spec: 'Brushed steel · 34 mm engraved medallion',
+    explodeBias: 0.2,
+    targets: ['case-back'],
   },
   {
     id: 'crystal',
@@ -472,27 +496,15 @@ export const CATALOGUE: readonly PartCatalogueEntry[] = [
     job: 'The sapphire pane that keeps dust off the movement while staying almost invisible.',
     detail:
       'Sapphire is used for its scratch resistance, and it is anti-reflective coated so the movement is not veiled by a reflection. Its edge is polished rather than chamfered, which is why it catches a thin ring of light.',
-    spec: 'Sapphire · 1.0 mm · anti-reflective',
+    spec: 'Sapphire · 1.05 mm dome · anti-reflective',
     explodeBias: 1.5,
     targets: ['crystal'],
-  },
-  {
-    id: 'lugs',
-    name: 'Lugs',
-    category: 'Case',
-    layer: 'case',
-    job: 'The four horns that would take a strap, left bare so the case reads as an object.',
-    detail:
-      'Each lug is machined with the case band and polished in the same pass, so the grain runs continuously from one into the other. Without a strap they become a compositional device: four points that tell you which way is up.',
-    spec: 'Champagne gold · 11.4 mm between lugs',
-    explodeBias: 0.6,
-    targets: ['lugs'],
   },
   {
     id: 'crown',
     name: 'Crown',
     category: 'Winding',
-    layer: 'keyless',
+    layer: 'case',
     job: 'The fluted button at three o’clock that you turn to wind the mainspring.',
     detail:
       'The flutes give your fingers something to grip against the spring’s resistance. Turning it clockwise winds; pulling it would let the keyless works switch to setting the hands.',

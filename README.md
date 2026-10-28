@@ -29,7 +29,7 @@ The calibre is **illustrative** — an original 4 Hz manual-wind design, not a r
 | Wind the mainspring | *Wind* | tab | button |
 | Return to the hero view | *Reset* | `R` on the canvas | *Reset* |
 
-The canvas is focusable. A keyboard help line appears when it is focused. The inspector is an `aria-live` region, the power reserve is a `meter`, and every control is a real button, slider or group.
+The canvas is focusable. A keyboard help line appears when it is focused. The inspector announces through a dedicated `aria-live` status region, the power reserve is a `meter`, and every control is a real button, slider or group.
 
 ## The calibre
 
@@ -46,20 +46,20 @@ The canvas is focusable. A keyboard help line appears when it is focused. The in
 
 Everything is generated at boot. There are no models, textures, HDRs or runtime font fetches.
 
-- 37 catalogue entries with name, category, plain-language job, longer explanation, technical spec and assembly layer.
+- 38 catalogue entries with name, category, plain-language job, longer explanation, technical spec and assembly layer.
 - Wheel geometry from tooth count and module, with crossings, hubs, pinions, arbors and bevelled flanks.
 - Bridges shaped along their load paths, with Côtes de Genève, anglage, gold chatons, rubies and blued screws.
 - Main plate with perlage and pierced openings; chapter ring with applied gold indices; gilt hands.
-- A studio built from emissive softboxes and strip lights, captured to an environment map at runtime; PCF shadows; ACES tone mapping; restrained bloom, SMAA, vignette and grain.
+- A studio built from emissive softboxes and strip lights, captured to an environment map at runtime; a gradient vitrine shell; PCF shadows; ACES tone mapping; SMAA, vignette and film grain.
 
 ## Performance
 
 Measured from `window.__openMovement.stats()` on the production build:
 
-- **193 scene draw calls** (budget 250). The full pipeline, including the shadow map and post passes, reports ~406 calls through `renderer.info`; the budget figure is the scene's structural count, which is what the smoke test enforces.
-- **154,982 triangles** in the scene (309,650 rendered including the shadow pass, still inside the 350k triangle budget).
+- **235 scene draw calls** (budget 250). The full pipeline, including the shadow map and post passes, reports more calls through `renderer.info`; the budget figure is the scene's structural count, which is what the smoke test enforces.
+- **157,446 triangles** in the scene (well inside the 350k triangle budget).
 - No per-frame allocation in the render loop; geometry and materials are built once, and the inspector dims shared per-part material instances rather than rebuilding the scene.
-- `high` and `lite` tiers. `lite` caps DPR at 1.5, halves bloom, disables grain and SMAA and uses a 1024² shadow map. Small viewports and coarse pointers select it automatically; the loop demotes after sustained slow frames.
+- `high` and `lite` tiers. `lite` caps DPR at 1.5, disables grain and SMAA and uses a 1024² shadow map. Small viewports and coarse pointers select it automatically; the loop demotes after sustained slow frames.
 
 The headless capture environment renders with SwiftShader (software), so its frame rate is not representative of a GPU and 60 fps is not claimed from it. The structural budget is enforced by the smoke test.
 
@@ -68,7 +68,7 @@ The headless capture environment renders with SwiftShader (software), so its fra
 - One inspection state (`idle → preview → pinned`) drives the outline, the dim, the inspector and the live region.
 - Escape clears from anywhere; brackets cycle every part; Enter pins; all controls are tabbable.
 - Reduced motion removes auto-orbit and camera flights and starts in slow motion; the escapement keeps running because it is the subject.
-- A no-WebGL path renders a styled page that names the calibre and lists all 37 parts with their jobs.
+- A no-WebGL path renders a styled page that names the calibre and lists all 38 parts with their jobs.
 - The layout is composed at 1440×900 and remains usable at 360×800; the inspector becomes a bottom sheet on phones.
 
 ## Run it
@@ -89,9 +89,9 @@ The browser tests and screenshots use `playwright-core`. Locally they drive the 
 ## Evidence
 
 - [Hero](docs/evidence/hero.png) — the composed three-quarter view.
-- [Hover](docs/evidence/hover.png) — a pinned part, outlined, with its inspector card.
+- [Hover](docs/evidence/hover.png) — a part previewed, with its inspector card.
 - [Exploded](docs/evidence/exploded.png) — the assembly separated along the watch axis.
-- [Review round 1](docs/evidence/review-round-1.md) · [Review round 2](docs/evidence/review-round-2.md).
+- [Review round 1](docs/evidence/review-round-1.md) · [Review round 2](docs/evidence/review-round-2.md) · [Review round 3](docs/evidence/review-round-3.md).
 
 ## Architecture
 

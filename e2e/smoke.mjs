@@ -102,6 +102,71 @@ try {
 
   const count = await page.evaluate(() => window.__openMovement.partCount);
   check(count >= 24, `${count} catalogue parts`);
+
+  /* Mobile: the inspector is a bottom sheet, not a clipped card. */
+  await page.close();
+  const mobile = await browser.newPage({
+    viewport: { width: 390, height: 844 },
+    deviceScaleFactor: 1,
+    isMobile: true,
+    hasTouch: true,
+  });
+  const mobileErrors = [];
+  mobile.on('console', (message) => {
+    if (message.type() === 'error') mobileErrors.push(message.text());
+  });
+  mobile.on('pageerror', (error) => mobileErrors.push(String(error)));
+  await mobile.goto(server.url, { waitUntil: 'networkidle' });
+  await mobile.waitForFunction(() => window.__openMovement !== undefined, null, { timeout: 90_000 });
+  await mobile.waitForFunction(() => document.querySelector('#app')?.getAttribute('data-ready') === 'true');
+  await mobile.waitForFunction(() => document.querySelector('#veil')?.classList.contains('is-gone'));
+  await mobile.waitForTimeout(1200);
+
+  const barrelPoint = await mobile.evaluate(() => window.__openMovement.projectPart('barrel'));
+  if (barrelPoint) {
+    await mobile.touchscreen.tap(barrelPoint.x, barrelPoint.y);
+    await mobile.waitForTimeout(500);
+    const first = await mobile.evaluate(() => window.__openMovement.getState());
+    check(first.inspection.mode === 'preview' && first.inspection.id !== null, 'touch previews a part');
+    await mobile.touchscreen.tap(barrelPoint.x, barrelPoint.y);
+    await mobile.waitForTimeout(500);
+    const pinned = await mobile.evaluate(() => window.__openMovement.getState());
+    check(pinned.inspection.mode === 'pinned', 'second touch pins the part');
+
+    const otherPoint = await mobile.evaluate(() => window.__openMovement.projectPart('third-wheel'));
+    if (otherPoint) {
+      await mobile.touchscreen.tap(otherPoint.x, otherPoint.y);
+      await mobile.waitForTimeout(500);
+      const moved = await mobile.evaluate(() => window.__openMovement.getState());
+      check(
+        moved.inspection.mode === 'pinned' && moved.inspection.id !== pinned.inspection.id,
+        'tapping another part moves the pin',
+      );
+    }
+
+    const box = await mobile.locator('#inspector').boundingBox();
+    const locateBox = await mobile.locator('#inspector button').boundingBox();
+    check(Boolean(box && box.y >= 0 && box.y + box.height <= 844), 'mobile inspector fits the viewport');
+    check(Boolean(locateBox && locateBox.y + locateBox.height <= 844), 'mobile Locate stays on screen');
+    const scrollable = await mobile.locator('#inspector').evaluate(
+      (node) => node.scrollHeight <= node.clientHeight + 2 || getComputedStyle(node).overflowY === 'auto',
+    );
+    check(scrollable, 'mobile inspector scrolls rather than clips');
+  } else {
+    check(false, 'barrel anchor projects on the mobile viewport');
+  }
+  check(mobileErrors.length === 0, `no mobile console errors${mobileErrors.length ? `: ${mobileErrors[0]}` : ''}`);
+  await mobile.close();
+
+  /* No-JS: a static, readable page rather than a stuck loading veil. */
+  const noJs = await browser.newContext({ javaScriptEnabled: false, viewport: { width: 900, height: 700 } });
+  const staticPage = await noJs.newPage();
+  await staticPage.goto(server.url, { waitUntil: 'networkidle' });
+  const fallback = await staticPage.locator('.noscript').boundingBox();
+  const appHidden = await staticPage.locator('#app').evaluate((node) => getComputedStyle(node).display === 'none');
+  check(Boolean(fallback && fallback.height > 100), 'no-JS fallback renders');
+  check(appHidden, 'no-JS hides the loading shell');
+  await noJs.close();
 } finally {
   await browser.close();
   await server.stop();

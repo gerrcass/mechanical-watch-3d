@@ -21,7 +21,11 @@ export type FinishName =
   | 'wheelFace'
   | 'platePerlage'
   | 'gold'
+  | 'handGold'
   | 'roseGold'
+  | 'casePolished'
+  | 'caseBrushed'
+  | 'caseBack'
   | 'blued'
   | 'ruby'
   | 'sapphire'
@@ -38,6 +42,7 @@ interface FinishDefinition {
   readonly roughness: number;
   readonly envMapIntensity: number;
   readonly bumpMap?: 'perlage' | 'cotes' | 'circular' | 'sunray';
+  readonly colorMap?: 'perlage' | 'cotes' | 'circular' | 'sunray';
   readonly roughnessMap?: 'perlage' | 'cotes' | 'circular' | 'sunray';
   readonly bumpScale?: number;
   readonly clearcoat?: number;
@@ -54,99 +59,105 @@ interface FinishDefinition {
  * difference on the watch.
  */
 const FINISHES: Readonly<Record<FinishName, FinishDefinition>> = {
-  polishedSteel: { color: 0xd0d6dd, metalness: 1, roughness: 0.12, envMapIntensity: 1.0 },
-  anglage: { color: 0xf2f6fa, metalness: 1, roughness: 0.045, envMapIntensity: 1.8 },
-  brushedSteel: { color: 0xa6acb4, metalness: 1, roughness: 0.38, envMapIntensity: 0.75 },
-  rhodium: { color: 0xbcc2c9, metalness: 1, roughness: 0.24, envMapIntensity: 0.9 },
+  polishedSteel: { color: 0xd3d9df, metalness: 1, roughness: 0.1, envMapIntensity: 1.1 },
+  anglage: { color: 0xe2d2b0, metalness: 1, roughness: 0.06, envMapIntensity: 1.15 },
+  brushedSteel: { color: 0x8f959d, metalness: 1, roughness: 0.42, envMapIntensity: 0.7 },
+  rhodium: { color: 0xa9b0b8, metalness: 1, roughness: 0.26, envMapIntensity: 0.85 },
   wheelFace: {
-    color: 0xc9a462,
+    color: 0xd0a75c,
     metalness: 1,
-    roughness: 0.26,
-    envMapIntensity: 1.1,
+    roughness: 0.22,
+    envMapIntensity: 1.15,
     bumpMap: 'circular',
     roughnessMap: 'circular',
-    bumpScale: 0.018,
+    bumpScale: 0.012,
   },
   bridgeSatine: {
-    color: 0xb2b8bf,
+    color: 0x454c54,
     metalness: 1,
-    roughness: 0.36,
-    envMapIntensity: 0.85,
+    roughness: 0.4,
+    envMapIntensity: 0.35,
     bumpMap: 'cotes',
-    roughnessMap: 'cotes',
     bumpScale: 0.008,
   },
   rhodiumCotes: {
-    color: 0xaeb4ba,
+    color: 0x9aa1a8,
     metalness: 1,
-    roughness: 0.46,
-    envMapIntensity: 0.55,
+    roughness: 0.4,
+    envMapIntensity: 0.6,
     bumpMap: 'cotes',
     roughnessMap: 'cotes',
-    bumpScale: 0.035,
+    bumpScale: 0.006,
   },
   platePerlage: {
-    color: 0x3d4349,
-    metalness: 1,
-    roughness: 0.62,
-    envMapIntensity: 0.5,
+    color: 0x4a525a,
+    metalness: 0.34,
+    roughness: 0.52,
+    envMapIntensity: 0.72,
     bumpMap: 'perlage',
+    colorMap: 'perlage',
     roughnessMap: 'perlage',
-    bumpScale: 0.09,
+    bumpScale: 0.2,
   },
-  gold: { color: 0xd2a95c, metalness: 1, roughness: 0.19, envMapIntensity: 1.0 },
-  roseGold: { color: 0xc98c68, metalness: 1, roughness: 0.22, envMapIntensity: 0.9 },
+  gold: { color: 0xc09a55, metalness: 1, roughness: 0.27, envMapIntensity: 0.9 },
+  handGold: { color: 0xc9a35c, metalness: 1, roughness: 0.32, envMapIntensity: 0.75 },
+  roseGold: { color: 0xc08a6a, metalness: 1, roughness: 0.22, envMapIntensity: 0.9 },
+  casePolished: { color: 0xd3b67f, metalness: 1, roughness: 0.12, envMapIntensity: 1.15 },
+  caseBrushed: { color: 0xc6ad82, metalness: 1, roughness: 0.28, envMapIntensity: 1.1 },
+  caseBack: { color: 0x83888e, metalness: 1, roughness: 0.4, envMapIntensity: 0.65 },
   blued: {
-    color: 0x2b4d82,
-    metalness: 0.92,
-    roughness: 0.16,
-    envMapIntensity: 1.0,
-    clearcoat: 0.55,
+    color: 0x1e3f6e,
+    metalness: 0.9,
+    roughness: 0.15,
+    envMapIntensity: 1.05,
+    clearcoat: 0.5,
   },
   ruby: {
-    color: 0x9c1029,
+    color: 0x9e0f27,
     metalness: 0.05,
-    roughness: 0.055,
-    envMapIntensity: 1.5,
+    roughness: 0.05,
+    envMapIntensity: 1.4,
     clearcoat: 1,
-    emissive: 0x3b0410,
-    emissiveIntensity: 0.55,
+    emissive: 0x2a0208,
+    emissiveIntensity: 0.32,
   },
   sapphire: {
-    color: 0xcfe2ea,
+    color: 0xdfeaf0,
     metalness: 0,
-    roughness: 0.015,
-    envMapIntensity: 1.6,
+    roughness: 0.018,
+    envMapIntensity: 0.5,
     clearcoat: 1,
     transparent: true,
-    opacity: 0.06,
+    opacity: 0.045,
   },
   chapterDark: {
-    color: 0x23262a,
-    metalness: 0.75,
-    roughness: 0.34,
-    envMapIntensity: 0.7,
-    clearcoat: 0.4,
+    color: 0x15181c,
+    metalness: 0.2,
+    roughness: 0.55,
+    envMapIntensity: 0.6,
+    clearcoat: 0.45,
+    bumpMap: 'sunray',
+    bumpScale: 0.004,
   },
   sunray: {
-    color: 0xb2a894,
+    color: 0xa79d8a,
     metalness: 1,
-    roughness: 0.38,
-    envMapIntensity: 0.8,
+    roughness: 0.4,
+    envMapIntensity: 0.75,
     bumpMap: 'sunray',
-    bumpScale: 0.02,
+    bumpScale: 0.015,
   },
   ratchetFace: {
-    color: 0x2b4d82,
+    color: 0x1d3b64,
     metalness: 0.92,
-    roughness: 0.22,
+    roughness: 0.2,
     envMapIntensity: 1.5,
     bumpMap: 'sunray',
     roughnessMap: 'sunray',
-    bumpScale: 0.02,
+    bumpScale: 0.015,
     clearcoat: 0.4,
   },
-  darkMetal: { color: 0x2a2c30, metalness: 0.85, roughness: 0.32, envMapIntensity: 0.9 },
+  darkMetal: { color: 0x2a2c30, metalness: 0.85, roughness: 0.34, envMapIntensity: 0.85 },
   matteBlack: { color: 0x0b0c0e, metalness: 0.2, roughness: 0.72, envMapIntensity: 0.4 },
   ivory: { color: 0xefe6d4, metalness: 0.1, roughness: 0.38, envMapIntensity: 0.8 },
 };
@@ -173,7 +184,7 @@ export class FinishLibrary {
       circular: () => createCircularGrainTexture(512),
       sunray: () => createSunrayTexture(1024),
     };
-    const repeats: Record<MapKind, number> = { perlage: 0.1, cotes: 0.11, circular: 0.12, sunray: 1 };
+    const repeats: Record<MapKind, number> = { perlage: 0.1, cotes: 0.024, circular: 0.12, sunray: 0.2 };
     for (const kind of Object.keys(sources) as MapKind[]) {
       const texture = sources[kind]();
       texture.anisotropy = anisotropy;
@@ -219,7 +230,11 @@ export class FinishLibrary {
     const roughnessKind = finish === 'ratchetFace' ? 'ratchet' : definition.roughnessMap;
     const roughnessMap = roughnessKind ? this.textureFor(roughnessKind) : undefined;
     if (roughnessMap && definition.roughnessMap) material.roughnessMap = roughnessMap;
+    const colorKind = definition.colorMap;
+    if (colorKind) material.map = this.textureFor(colorKind);
     material.userData.baseColor = new Color(definition.color);
+    material.userData.baseEmissive = material.emissive.clone();
+    material.userData.baseEmissiveIntensity = material.emissiveIntensity;
     material.userData.finish = finish;
     this.materials.add(material);
     return material;
@@ -236,6 +251,19 @@ export class FinishLibrary {
     const base = material.userData.baseColor as Color | undefined;
     if (!base) return;
     material.color.copy(base).multiplyScalar(factor);
+  }
+
+  /** A warm lifted glow on the selected part, restored exactly on clear. */
+  setHighlight(material: MeshPhysicalMaterial, active: boolean): void {
+    const base = material.userData.baseEmissive as Color | undefined;
+    if (!base) return;
+    if (active) {
+      material.emissive.setHex(0x5a3c12);
+      material.emissiveIntensity = 0.5;
+    } else {
+      material.emissive.copy(base);
+      material.emissiveIntensity = (material.userData.baseEmissiveIntensity as number | undefined) ?? 0;
+    }
   }
 
   dispose(): void {

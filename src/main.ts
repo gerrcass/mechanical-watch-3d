@@ -3,6 +3,7 @@ import { CATALOGUE, partById } from './calibre/catalogue';
 import { CALIBRE } from './calibre/constants';
 import { currentStop, TOUR_STOPS } from './calibre/tour';
 import { selectQuality } from './calibre/quality';
+import { Mesh } from 'three';
 import { Engine } from './core/engine';
 import { Exhibit } from './watch/exhibit';
 import { buildPlate } from './watch/plate';
@@ -98,7 +99,10 @@ function boot(): void {
   });
 
   const inspectorRoot = document.getElementById('inspector');
-  const inspector = inspectorRoot ? new Inspector(inspectorRoot) : null;
+  const liveRegion = document.getElementById('inspection-live');
+  const inspector = inspectorRoot
+    ? new Inspector(inspectorRoot, liveRegion instanceof HTMLElement ? liveRegion : null)
+    : null;
   const hudElement = document.getElementById('hud');
   const hud = hudElement ? new Hud(hudElement) : null;
   if (hud) {
@@ -195,6 +199,7 @@ function boot(): void {
     document.body.dataset.inspected = snapshot.inspection.id ?? '';
 
     const tour = currentStop(snapshot.tour);
+    inspector?.setLiveMuted(Boolean(tour));
     document.body.classList.toggle('tour-active', Boolean(tour));
     if (tourPanel) tourPanel.hidden = !tour;
     if (tour) {
@@ -242,11 +247,32 @@ function boot(): void {
     wind: () => exhibit.wind(),
     reset: () => exhibit.reset(),
     locate: (id: string) => exhibit.locate(id),
+    setView: (position: [number, number, number], target: [number, number, number]) => exhibit.setView(position, target),
     stats: () => exhibit.stats(),
     projectPart: (id: string) => exhibit.projectPart(id),
     pickAtScreen: (x: number, y: number) => exhibit.pickAtScreen(x, y),
     cameraState: () => exhibit.cameraState(),
     setPartVisible: (id: string, visible: boolean) => exhibit.setPartVisible(id, visible),
+    materialInfo: (id: string) => {
+      const part = exhibit.partHandles.find((candidate) => candidate.id === id);
+      return part?.materials.map((material) => ({
+        finish: material.userData.finish,
+        bump: Boolean(material.bumpMap),
+        bumpScale: material.bumpScale,
+        roughnessMap: Boolean(material.roughnessMap),
+        metalness: material.metalness,
+        roughness: material.roughness,
+        color: material.color.getHexString(),
+      }));
+    },
+    meshInfo: (id: string) => {
+      const part = exhibit.partHandles.find((candidate) => candidate.id === id);
+      if (!part) return [];
+      return part.group.children.filter((child): child is Mesh => child instanceof Mesh).slice(0, 4).map((child) => ({
+        groups: child.geometry.groups,
+        materials: (Array.isArray(child.material) ? child.material : [child.material]).map((material) => material.userData.finish ?? material.type),
+      }));
+    },
     partCount: CATALOGUE.length,
     tourStops: TOUR_STOPS.length,
   };

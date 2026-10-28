@@ -19,16 +19,22 @@ export class Inspector {
   private readonly indexCurrent: HTMLSpanElement;
   private readonly indexTotal: HTMLSpanElement;
   private readonly root: HTMLElement;
+  private readonly live: HTMLElement | null;
+  private liveMuted = false;
   private locateHandler: ((id: string) => void) | null = null;
   private currentId: string | null = null;
 
-  constructor(root: HTMLElement) {
+  constructor(root: HTMLElement, live: HTMLElement | null = null) {
     this.root = root;
+    this.live = live;
     root.classList.add('inspector', 'is-idle');
-    root.setAttribute('aria-live', 'polite');
-    root.setAttribute('aria-atomic', 'true');
+    root.setAttribute('role', 'region');
     root.setAttribute('aria-label', 'Inspector');
     root.textContent = '';
+
+    const handle = document.createElement('span');
+    handle.className = 'inspector-handle';
+    handle.setAttribute('aria-hidden', 'true');
 
     this.category = document.createElement('p');
     this.category.className = 'inspector-category';
@@ -72,13 +78,23 @@ export class Inspector {
     this.indexTotal = right;
     index.append(left, right);
 
-    root.append(this.category, this.name, this.job, this.detail, this.spec, actions, index);
+    root.append(handle, this.category, this.name, this.job, this.detail, this.spec, actions, index);
 
     this.render({ mode: 'idle', id: null }, null, -1, 0);
   }
 
   onLocate(handler: (id: string) => void): void {
     this.locateHandler = handler;
+  }
+
+  /** The tour has its own live region; do not announce the card twice. */
+  setLiveMuted(muted: boolean): void {
+    this.liveMuted = muted;
+    if (muted && this.live) this.live.textContent = '';
+  }
+
+  private announce(text: string): void {
+    if (this.live && !this.liveMuted) this.live.textContent = text;
   }
 
   render(state: InspectionState, entry: PartCatalogueEntry | null, index = -1, total = 0): void {
@@ -99,6 +115,7 @@ export class Inspector {
       this.locate.textContent = 'Locate';
       this.indexCurrent.textContent = `${total} named parts`;
       this.indexTotal.textContent = 'MW-01 · illustrative';
+      this.announce('Calibre MW-01. Point at a component to hear its name and job.');
       return;
     }
 
@@ -115,5 +132,6 @@ export class Inspector {
     const pad = (value: number): string => value.toString().padStart(2, '0');
     this.indexCurrent.textContent = index >= 0 ? `${pad(index + 1)} / ${pad(total)}` : 'MW-01';
     this.indexTotal.textContent = state.mode === 'pinned' ? 'Pinned · Esc clears' : 'Click to pin · Esc clears';
+    this.announce(`${state.mode === 'pinned' ? 'Pinned: ' : ''}${entry.name}. ${entry.job}`);
   }
 }

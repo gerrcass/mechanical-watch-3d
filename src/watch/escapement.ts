@@ -48,14 +48,29 @@ export function buildEscapement(ctx: WatchContext): void {
   }
 
   /* Pallet fork ----------------------------------------------------------- */
-  const forkBuild = ctx.part('pallet-fork', { x: LAYOUT.pallet.x, y: LAYOUT.pallet.y, z: -1.62 });
+  const forkBuild = ctx.part('pallet-fork', { x: LAYOUT.pallet.x, y: LAYOUT.pallet.y, z: LAYOUT.pallet.z });
   const forkPivot = new Group();
-  forkPivot.position.set(LAYOUT.pallet.x, LAYOUT.pallet.y, -1.62);
+  forkPivot.position.set(LAYOUT.pallet.x, LAYOUT.pallet.y, LAYOUT.pallet.z);
   forkBuild.add(forkPivot);
 
   const steel = ctx.finishes.create('polishedSteel');
   const boss = box(0.56, 0.56, 0.26, steel);
   forkPivot.add(boss);
+  // The upper pivot reaches the pallet bridge just above the fork plane.
+  const forkArbor = new Mesh(
+    latheAlongZ(
+      [
+        new Vector2(0, 0.78),
+        new Vector2(0.11, 0.74),
+        new Vector2(0.11, 0.06),
+        new Vector2(0, 0.02),
+      ],
+      16,
+    ),
+    steel,
+  );
+  forkArbor.castShadow = true;
+  forkPivot.add(forkArbor);
 
   // Fork arm points at the balance's impulse pin (down-left); the pallet arms
   // straddle the escape wheel (up-right).
@@ -90,9 +105,9 @@ export function buildEscapement(ctx: WatchContext): void {
   forkPivot.add(palletBar);
 
   // Two ruby stones at the ends of the pallet bar.
-  const stoneBuild = ctx.part('pallet-stones', { x: LAYOUT.pallet.x, y: LAYOUT.pallet.y, z: -1.62 });
+  const stoneBuild = ctx.part('pallet-stones', { x: LAYOUT.pallet.x, y: LAYOUT.pallet.y, z: LAYOUT.pallet.z });
   const stonePivot = new Group();
-  stonePivot.position.set(LAYOUT.pallet.x, LAYOUT.pallet.y, -1.62);
+  stonePivot.position.set(LAYOUT.pallet.x, LAYOUT.pallet.y, LAYOUT.pallet.z);
   stoneBuild.add(stonePivot);
   for (const side of [-1, 1]) {
     const stone = stoneBuild.mesh(new BoxGeometry(0.18, 0.42, 0.16), 'ruby');
@@ -130,49 +145,72 @@ export function buildEscapement(ctx: WatchContext): void {
   balanceBuild.add(balancePivot);
 
   // Rim: a lenticular band of gold, the visual anchor at six o'clock.
-  const rim = new Mesh(new TorusGeometry(3.55, 0.3, 18, 128), ctx.finishes.create('gold'));
-  rim.scale.z = 0.72;
+  const rim = new Mesh(new TorusGeometry(4.0, 0.38, 22, 160), ctx.finishes.create('gold'));
+  rim.scale.z = 0.62;
   rim.castShadow = true;
   rim.receiveShadow = true;
   balancePivot.add(rim);
 
   for (let index = 0; index < 3; index += 1) {
     const angle = (index / 3) * Math.PI * 2 + 0.3;
-    const arm = box(3.5, 0.44, 0.18, ctx.finishes.create('gold'));
+    const arm = box(4.0, 0.62, 0.2, ctx.finishes.create('gold'));
     arm.rotation.z = angle;
-    arm.position.set(Math.cos(angle) * 1.85, Math.sin(angle) * 1.85, 0);
+    arm.position.set(Math.cos(angle) * 2.1, Math.sin(angle) * 2.1, 0);
     balancePivot.add(arm);
+    // A polished bevel strip on each arm catches the key light.
+    const bevel = box(3.85, 0.13, 0.045, ctx.finishes.create('anglage'));
+    bevel.rotation.z = angle;
+    bevel.position.set(Math.cos(angle) * 2.1, Math.sin(angle) * 2.1, 0.115);
+    balancePivot.add(bevel);
   }
 
   const hub = new Mesh(
     latheAlongZ(
       [
-        new Vector2(0, 0.3),
-        new Vector2(0.48, 0.3),
-        new Vector2(0.58, 0.22),
-        new Vector2(0.58, -0.22),
-        new Vector2(0.48, -0.3),
-        new Vector2(0, -0.3),
+        new Vector2(0, 0.34),
+        new Vector2(0.52, 0.34),
+        new Vector2(0.64, 0.24),
+        new Vector2(0.64, -0.24),
+        new Vector2(0.52, -0.34),
+        new Vector2(0, -0.34),
       ],
-      36,
+      40,
     ),
     ctx.finishes.create('polishedSteel'),
   );
   hub.castShadow = true;
   balancePivot.add(hub);
+  const staff = new Mesh(
+    latheAlongZ(
+      [
+        new Vector2(0, 1.65),
+        new Vector2(0.07, 1.6),
+        new Vector2(0.07, 0),
+        new Vector2(0, 0),
+      ],
+      12,
+    ),
+    ctx.finishes.create('polishedSteel'),
+  );
+  staff.castShadow = true;
+  balancePivot.add(staff);
 
   // Eight timing screws around the rim: tiny gold cylinders that catch light.
   const screwGeometry = latheAlongZ(
-    [new Vector2(0, 0.1), new Vector2(0.17, 0.1), new Vector2(0.17, -0.1), new Vector2(0, -0.1)],
-    14,
+    [new Vector2(0, 0.11), new Vector2(0.19, 0.11), new Vector2(0.19, -0.11), new Vector2(0, -0.11)],
+    16,
   );
   for (let index = 0; index < 8; index += 1) {
     const angle = (index / 8) * Math.PI * 2;
     const screw = new Mesh(screwGeometry, ctx.finishes.create('gold'));
-    screw.position.set(Math.cos(angle) * 3.6, Math.sin(angle) * 3.6, 0.16);
+    screw.position.set(Math.cos(angle) * 4.06, Math.sin(angle) * 4.06, 0.17);
     screw.rotation.z = angle;
     screw.castShadow = true;
     balancePivot.add(screw);
+    const slot = box(0.22, 0.055, 0.02, ctx.finishes.create('matteBlack'));
+    slot.position.set(Math.cos(angle) * 4.06, Math.sin(angle) * 4.06, 0.255);
+    slot.rotation.z = angle + 0.4;
+    balancePivot.add(slot);
   }
 
   // Roller table and ruby impulse pin reach down to the fork.
@@ -182,8 +220,8 @@ export function buildEscapement(ctx: WatchContext): void {
         new Vector2(0, 0.06),
         new Vector2(0.4, 0.06),
         new Vector2(0.5, -0.1),
-        new Vector2(0.5, -2.42),
-        new Vector2(0, -2.42),
+        new Vector2(0.5, -3.6),
+        new Vector2(0, -3.6),
       ],
       24,
     ),
@@ -193,17 +231,17 @@ export function buildEscapement(ctx: WatchContext): void {
   balancePivot.add(roller);
   const impulse = box(0.16, 0.38, 0.2, ctx.finishes.create('ruby'));
   // The pin must meet the fork, which reaches the balance from the lower left.
-  impulse.position.set(-0.43, -1.25, -2.4);
+  impulse.position.set(-0.13, -2.15, -3.5);
   balancePivot.add(impulse);
 
   /* Hairspring ------------------------------------------------------------ */
   const hairspringBuild = ctx.part('hairspring', { x: LAYOUT.balance.x, y: LAYOUT.balance.y, z: LAYOUT.hairspring.z });
   const springGeometry = spiralRibbonGeometry({
-    innerRadius: 0.62,
-    outerRadius: 2.25,
-    turns: 5,
-    width: 0.055,
-    segments: 520,
+    innerRadius: 0.66,
+    outerRadius: 3.4,
+    turns: 6,
+    width: 0.052,
+    segments: 720,
   });
   const tAttribute = new Float32Array(springGeometry.getAttribute('position').count);
   const uv = springGeometry.attributes.uv;
@@ -241,19 +279,19 @@ export function buildEscapement(ctx: WatchContext): void {
 
   // Stud: the fixed outer end, pinned to the cock.
   const stud = ctx.part('hairspring').mesh(new BoxGeometry(0.24, 0.4, 0.2), 'polishedSteel');
-  stud.position.set(LAYOUT.balance.x + 2.3, LAYOUT.balance.y, LAYOUT.hairspring.z);
+  stud.position.set(LAYOUT.balance.x + 3.43, LAYOUT.balance.y, LAYOUT.hairspring.z);
 
   /* Shock spring ---------------------------------------------------------- */
-  const shockBuild = ctx.part('shock-spring', { x: LAYOUT.balance.x, y: LAYOUT.balance.y, z: 2.78 });
+  const shockBuild = ctx.part('shock-spring', { x: LAYOUT.balance.x, y: LAYOUT.balance.y, z: LAYOUT.balanceCock.z + 0.26 });
   const shock = shockBuild.mesh(extrudeShape(ringShape(0.62, 0.44), { depth: 0.08, bevelSize: 0.02, bevelThickness: 0.02, curveSegments: 32 }), ['blued', 'anglage']);
-  shock.position.set(LAYOUT.balance.x, LAYOUT.balance.y, 2.78);
+  shock.position.set(LAYOUT.balance.x, LAYOUT.balance.y, LAYOUT.balanceCock.z + 0.26);
   for (let index = 0; index < 3; index += 1) {
     const angle = (index / 3) * Math.PI * 2;
     const tongue = shockBuild.mesh(new BoxGeometry(0.34, 0.09, 0.06), 'blued');
     tongue.position.set(
       LAYOUT.balance.x + Math.cos(angle) * 0.54,
       LAYOUT.balance.y + Math.sin(angle) * 0.54,
-      2.79,
+      LAYOUT.balanceCock.z + 0.27,
     );
     tongue.rotation.z = angle;
   }

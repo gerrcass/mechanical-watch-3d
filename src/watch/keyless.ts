@@ -9,7 +9,7 @@ import type { WatchContext } from './context';
  * holds what has been wound.
  */
 export function buildKeyless(ctx: WatchContext): void {
-  const z = 1.55;
+  const z = 2.2;
 
   /* Ratchet wheel on the barrel arbor ------------------------------------- */
   const ratchetBuild = ctx.part('ratchet-wheel', { x: LAYOUT.barrel.x, y: LAYOUT.barrel.y, z });
@@ -71,9 +71,9 @@ export function buildKeyless(ctx: WatchContext): void {
   );
 
   /* Click and click spring ------------------------------------------------ */
-  const clickBuild = ctx.part('click', { x: -1.1, y: 5.9, z });
+  const clickBuild = ctx.part('click', { x: -2.35, y: 4.55, z });
   const clickPivot = new Group();
-  clickPivot.position.set(-1.1, 5.9, z + 0.02);
+  clickPivot.position.set(-2.35, 4.55, z + 0.02);
   clickBuild.add(clickPivot);
   const clickArm = clickBuild.mesh(
     extrudeShape(roundedRectShape(2.6, 0.55, 0.26), {
@@ -85,7 +85,7 @@ export function buildKeyless(ctx: WatchContext): void {
     }),
     'blued',
   );
-  clickArm.position.set(-1.1, -0.4, 0);
+  clickArm.position.set(-1.05, -0.5, 0);
   clickArm.rotation.z = 0.5;
   clickPivot.add(clickArm);
   const clickHub = clickBuild.mesh(
@@ -94,9 +94,9 @@ export function buildKeyless(ctx: WatchContext): void {
   );
   clickPivot.add(clickHub);
 
-  const springBuild = ctx.part('click-spring', { x: -1.1, y: 5.9, z });
+  const springBuild = ctx.part('click-spring', { x: -2.35, y: 4.55, z });
   const springShape = ribbonShape(
-    [new Vector2(0.1, 6.6), new Vector2(1.0, 6.3), new Vector2(1.5, 5.7)],
+    [new Vector2(-2.15, 5.15), new Vector2(-1.45, 4.95), new Vector2(-0.75, 4.55)],
     [0.2, 0.18, 0.14],
   );
   const spring = springBuild.mesh(
@@ -107,12 +107,12 @@ export function buildKeyless(ctx: WatchContext): void {
 
   /* Stem, pinion and crown ------------------------------------------------ */
   const stemBuild = ctx.part('winding-stem', { x: 12, y: 0.95, z });
-  const stemLength = 19.0;
+  const stemLength = 17.0;
   const stem = stemBuild.mesh(new CylinderGeometry(0.17, 0.17, stemLength, 16), 'darkMetal');
   stem.rotation.z = Math.PI / 2;
-  stem.position.set(11.0, 0.8, z);
+  stem.position.set(10.3, 0.8, z);
   const square = stemBuild.mesh(new BoxGeometry(1.5, 0.4, 0.4), 'polishedSteel');
-  square.position.set(20.0, 0.8, z);
+  square.position.set(18.4, 0.8, z);
 
   const pinionBuild = ctx.part('winding-stem');
   const windingPinion = pinionBuild.mesh(
@@ -127,9 +127,9 @@ export function buildKeyless(ctx: WatchContext): void {
   );
   windingPinion.position.set(0.95, 1.2, z);
 
-  const crownBuild = ctx.part('crown', { x: 21.4, y: 0.8, z });
+  const crownBuild = ctx.part('crown', { x: 19.3, y: 0.8, z });
   const crownPivot = new Group();
-  crownPivot.position.set(21.4, 0.8, z);
+  crownPivot.position.set(19.3, 0.8, z);
   crownBuild.add(crownPivot);
   const crownGeometry = extrudeShape(gearShape({ teeth: 22, module: 0.2, boreRadius: 0.25, spokes: 0, pierced: 0 }), {
     depth: 1.7,

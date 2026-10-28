@@ -31,7 +31,8 @@
           </p>
         </header>
 
-        <aside class="inspector" id="inspector" aria-live="polite" aria-atomic="true" aria-label="Inspector"></aside>
+        <aside class="inspector" id="inspector" role="region" aria-label="Inspector"></aside>
+        <p class="sr-only" id="inspection-live" role="status" aria-live="polite" aria-atomic="true"></p>
 
         <section class="tour" id="tour" hidden aria-label="Guided tour" role="status" aria-live="polite" aria-atomic="true">
           <p class="tour-step" id="tour-step">01 · Power</p>
@@ -112,11 +113,16 @@
       </section>
     </main>
     <noscript>
+      <style>
+        .app { display: none !important; }
+        .noscript { min-height: 100vh; display: grid; place-content: center; gap: 1rem; padding: 3rem; background: #050608; color: #efe9dd; font-family: Georgia, serif; }
+        .noscript p { max-width: 34rem; line-height: 1.7; color: #c9c4b8; }
+      </style>
       <div class="noscript">
         <h1>The Open Movement — Calibre MW-01</h1>
         <p>
           An interactive skeleton watch needs JavaScript and WebGL. Calibre MW-01 is an illustrative four-hertz,
-          manually wound movement with a Swiss lever escapement, a 42-hour power reserve and 37 described parts.
+          manually wound movement with a Swiss lever escapement, a 42-hour power reserve and 38 described parts.
         </p>
       </div>
     </noscript>

@@ -12,12 +12,13 @@ import {
   type MeshPhysicalMaterial,
   PlaneGeometry,
   PMREMGenerator,
+  ShaderMaterial,
+  SphereGeometry,
   Scene,
   Vector3,
   type Texture,
   type WebGLRenderer,
 } from 'three';
-import { createBackdropTexture, createShadowTexture } from './textures';
 import { QUALITY, type QualityTier } from '../calibre/quality';
 
 /**
@@ -31,8 +32,6 @@ export class Studio {
   readonly fillLight: DirectionalLight;
   readonly rimLight: DirectionalLight;
   readonly environment: Texture;
-  private readonly backdropMaterial: MeshBasicMaterial;
-  private readonly shadowMaterial: MeshBasicMaterial;
   private readonly studioScene: Scene;
   private readonly pmrem: PMREMGenerator;
   private readonly disposables: Array<{ dispose: () => void }> = [];
@@ -43,67 +42,51 @@ export class Studio {
     this.environment = this.pmrem.fromScene(this.studioScene, 0.035).texture;
     this.disposables.push(this.environment);
 
-    const backdropTexture = createBackdropTexture(1024);
-    this.backdropMaterial = new MeshBasicMaterial({
-      map: backdropTexture,
-      depthWrite: false,
-      toneMapped: true,
-    });
-    const backdrop = new Mesh(new PlaneGeometry(420, 320), this.backdropMaterial);
-    backdrop.position.set(0, 0, -80);
-    backdrop.name = 'backdrop';
-    this.group.add(backdrop);
-
-    const shadowTexture = createShadowTexture(512);
-    this.shadowMaterial = new MeshBasicMaterial({
-      map: shadowTexture,
-      transparent: true,
-      opacity: 0.8,
-      depthWrite: false,
-      color: 0x000000,
-      toneMapped: true,
-    });
-    const shadow = new Mesh(new PlaneGeometry(90, 78), this.shadowMaterial);
-    shadow.position.set(-4.5, -8.5, -14);
-    shadow.name = 'contact-shadow';
-    this.group.add(shadow);
-
-    this.keyLight = new DirectionalLight(0xfff0da, 2.4);
-    this.keyLight.position.set(-24, 34, 30);
+    this.keyLight = new DirectionalLight(0xfff2e4, 1.3);
+    this.keyLight.position.set(-22, 31, 34);
     this.keyLight.castShadow = true;
-    this.keyLight.shadow.mapSize.set(tier === 'lite' ? 1024 : 2048, tier === 'lite' ? 1024 : 2048);
-    this.keyLight.shadow.camera.left = -30;
-    this.keyLight.shadow.camera.right = 30;
-    this.keyLight.shadow.camera.top = 30;
-    this.keyLight.shadow.camera.bottom = -30;
+    const shadowSize = QUALITY[tier].shadowMapSize;
+    this.keyLight.shadow.mapSize.set(shadowSize, shadowSize);
+    this.keyLight.shadow.camera.left = -34;
+    this.keyLight.shadow.camera.right = 34;
+    this.keyLight.shadow.camera.top = 34;
+    this.keyLight.shadow.camera.bottom = -34;
     this.keyLight.shadow.camera.near = 1;
-    this.keyLight.shadow.camera.far = 110;
-    this.keyLight.shadow.bias = -0.00035;
-    this.keyLight.shadow.normalBias = 0.035;
-    this.keyLight.shadow.radius = 3;
+    this.keyLight.shadow.camera.far = 120;
+    this.keyLight.shadow.bias = -0.0004;
+    this.keyLight.shadow.normalBias = 0.032;
+    this.keyLight.shadow.radius = 4;
     this.group.add(this.keyLight);
 
-    this.fillLight = new DirectionalLight(0xa9c4e6, 1.1);
-    this.fillLight.position.set(32, -16, 18);
+    this.fillLight = new DirectionalLight(0x9db8e0, 0.8);
+    this.fillLight.position.set(34, -12, 20);
     this.group.add(this.fillLight);
 
-    this.rimLight = new DirectionalLight(0xffd6a1, 1.6);
-    this.rimLight.position.set(4, -36, -2);
+    this.rimLight = new DirectionalLight(0xffc98f, 1.35);
+    this.rimLight.position.set(0, -34, 4);
     this.group.add(this.rimLight);
 
-    const ambient = new HemisphereLight(0x323a42, 0x040506, 0.18);
+    // A raking card from the left: the perlage and the anglage only appear
+    // when the light crosses them at a shallow angle.
+    const rake = new DirectionalLight(0xffe7cd, 0.95);
+    rake.position.set(-38, -18, 18);
+    this.group.add(rake);
+    const coolRake = new DirectionalLight(0x9fbbe8, 0.35);
+    coolRake.position.set(36, -6, 16);
+    this.group.add(coolRake);
+
+    const ambient = new HemisphereLight(0x1b2430, 0x020203, 0.22);
     this.group.add(ambient);
 
     // A jeweller's lamp in front of the movement: lifts the dial side without
     // touching the backdrop. No shadow map, so it costs one light loop only.
-    const lamp = new PointLight(0xfff1dc, 520, 110, 2);
-    lamp.position.set(6, 9, 26);
+    const lamp = new PointLight(0xfff1dc, 130, 120, 2);
+    lamp.position.set(5, 9, 27);
     this.group.add(lamp);
-    const fillLamp = new PointLight(0x9fc2e8, 140, 90, 2);
+    const fillLamp = new PointLight(0x9fc2e8, 95, 90, 2);
     fillLamp.position.set(-16, -4, 22);
     this.group.add(fillLamp);
     this.disposables.push(lamp, fillLamp);
-    this.disposables.push(this.backdropMaterial, this.shadowMaterial);
     this.disposables.push({ dispose: () => this.keyLight.shadow.dispose() });
   }
 
@@ -126,22 +109,25 @@ export class Studio {
     };
 
     // Key softbox: a broad warm card above and to the right of the watch.
-    panel(96, 40, 0xfff2df, 3.0, [-24, 62, 46], [-Math.PI / 3.1, -0.2, 0]);
+    panel(120, 52, 0xfff2df, 3.2, [-24, 62, 46], [-Math.PI / 3.1, -0.2, 0]);
     // Fill: a cooler, larger card on the left.
-    panel(80, 60, 0xa9c6ec, 1.0, [62, 0, 22], [0, -Math.PI / 2.2, 0]);
+    panel(90, 70, 0x9db8e0, 1.25, [62, 0, 22], [0, -Math.PI / 2.2, 0]);
     // Rim strip behind the watch, low, to draw the case edge.
-    panel(110, 10, 0xffd9a8, 2.6, [6, -6, -70], [0, 0, 0]);
+    panel(110, 8, 0xffd9a8, 2.1, [6, -6, -70], [0, 0, 0]);
     // Narrow specular strips: the long highlights that sell polished steel.
-    panel(78, 2.4, 0xffffff, 7.5, [4, 38, 56], [-Math.PI / 3.4, 0, 0.06]);
-    panel(2.6, 52, 0xffffff, 5.0, [-26, 10, 54], [0, -0.2, 0]);
-    panel(2.2, 26, 0xffe4bd, 4.0, [44, -2, 30], [0, -Math.PI / 2.6, 0]);
+    panel(90, 2.4, 0xffffff, 8.0, [4, 38, 56], [-Math.PI / 3.4, 0, 0.06]);
+    panel(2.4, 58, 0xffffff, 5.0, [-26, 10, 54], [0, -0.2, 0]);
+    panel(2.2, 30, 0xffe4bd, 4.0, [44, -2, 30], [0, -Math.PI / 2.6, 0]);
     // A dim bounce card underneath so the underside of the case is not black.
-    panel(70, 40, 0x6c7a8c, 0.45, [0, -52, 20], [Math.PI / 2.4, 0, 0]);
+    panel(70, 40, 0x5c6a7a, 0.3, [0, -52, 20], [Math.PI / 2.4, 0, 0]);
     // A large frontal scrim: the light tent that makes a movement legible.
-    // A softer frontal scrim, just enough to read into the shadows.
-    panel(120, 70, 0xf0e9dc, 0.55, [0, 6, 92], [0, Math.PI, 0]);
+    panel(140, 80, 0xf0e9dc, 0.4, [0, 6, 92], [0, Math.PI, 0]);
 
     return scene;
+  }
+
+  track(...items: Array<{ dispose: () => void }>): void {
+    this.disposables.push(...items);
   }
 
   dispose(): void {
@@ -159,12 +145,52 @@ export function createStudioScene(renderer: WebGLRenderer, tier: QualityTier): {
   const scene = new Scene();
   const studio = new Studio(renderer, tier);
   scene.add(studio.group);
+  scene.background = new Color(0x06070a);
   scene.environment = studio.environment;
-  scene.environmentIntensity = 0.9;
+  scene.environmentIntensity = 0.95;
 
-  const camera = new PerspectiveCamera(24, 16 / 9, 1, 700);
+  // A gradient shell around the vitrine. It is inside the camera's far plane
+  // and behind every object, so the composition has depth without a plane
+  // edge appearing when the camera orbits.
+  const shellGeometry = new SphereGeometry(300, 32, 18);
+  const shellMaterial = new ShaderMaterial({
+    side: BackSide,
+    depthWrite: false,
+    depthTest: false,
+    uniforms: {
+      uTop: { value: new Color(0x0b0e13) },
+      uBottom: { value: new Color(0x020304) },
+      uGlow: { value: new Color(0x2c2318) },
+    },
+    vertexShader: /* glsl */ `
+      varying vec3 vWorld;
+      void main() {
+        vWorld = (modelMatrix * vec4(position, 1.0)).xyz;
+        gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+      }
+    `,
+    fragmentShader: /* glsl */ `
+      uniform vec3 uTop;
+      uniform vec3 uBottom;
+      uniform vec3 uGlow;
+      varying vec3 vWorld;
+      void main() {
+        float h = clamp(vWorld.y / 300.0 * 0.5 + 0.5, 0.0, 1.0);
+        vec3 color = mix(uBottom, uTop, smoothstep(0.0, 1.0, h));
+        float glow = exp(-dot(vWorld.xy - vec2(-55.0, 30.0), vWorld.xy - vec2(-55.0, 30.0)) / 36000.0);
+        color += uGlow * glow * 0.85;
+        gl_FragColor = vec4(color, 1.0);
+      }
+    `,
+  });
+  const shell = new Mesh(shellGeometry, shellMaterial);
+  shell.renderOrder = -100;
+  scene.add(shell);
+  studio.track(shellGeometry, shellMaterial);
+
+  const camera = new PerspectiveCamera(25, 16 / 9, 1, 700);
   camera.position.set(40, -50, 143);
-  camera.lookAt(new Vector3(1.5, -1.1, 0.4));
+  camera.lookAt(new Vector3(0.6, -0.9, 0.4));
   return { scene, studio, camera };
 }
 

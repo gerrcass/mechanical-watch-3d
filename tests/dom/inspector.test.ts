@@ -10,8 +10,12 @@ beforeEach(() => {
 
 function mountInspector(): Inspector {
   const root = document.createElement('aside');
-  document.body.append(root);
-  return new Inspector(root);
+  const live = document.createElement('p');
+  live.id = 'inspection-live';
+  live.setAttribute('role', 'status');
+  live.setAttribute('aria-live', 'polite');
+  document.body.append(root, live);
+  return new Inspector(root, live);
 }
 
 describe('inspector contract', () => {
@@ -35,11 +39,14 @@ describe('inspector contract', () => {
     expect(document.querySelector('.inspector-status')?.textContent).toBe('Ready');
   });
 
-  it('is a live region and never renders catalogue data as markup', () => {
+  it('announces through a dedicated live region and never renders catalogue data as markup', () => {
     const inspector = mountInspector();
     const root = document.querySelector('.inspector') as HTMLElement;
-    expect(root.getAttribute('aria-live')).toBe('polite');
+    const live = document.getElementById('inspection-live') as HTMLElement;
+    expect(root.getAttribute('role')).toBe('region');
+    expect(live.getAttribute('aria-live')).toBe('polite');
     inspector.render({ mode: 'pinned', id: 'main-plate' }, partById('main-plate') ?? null, 0, CATALOGUE.length);
+    expect(live.textContent).toContain('Main plate');
     expect(root.querySelectorAll('script').length).toBe(0);
   });
 });

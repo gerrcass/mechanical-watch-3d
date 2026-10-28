@@ -1,4 +1,5 @@
 import {
+  Mesh,
   Raycaster,
   Spherical,
   Vector2,
@@ -96,11 +97,12 @@ export class Exhibit {
   private readonly listeners = new Set<() => void>();
   private readonly clockListeners = new Set<(snapshot: ExhibitSnapshot) => void>();
   private lastClockEmit = 0;
-  private homePose: CameraPose = { position: [40, -50, 143], target: [1.5, -1.1, 0.4] };
+  private homePose: CameraPose = { position: [40, -50, 143], target: [0.6, -0.9, 0.4] };
   private ready = false;
   private frame = 0;
   private lastFrameTime = 0;
   private fps = 0;
+  private slowSeconds = 0;
   private rafId = 0;
 
   constructor(options: ExhibitOptions) {
@@ -156,10 +158,13 @@ export class Exhibit {
   private tick(now: number, delta: number): void {
     this.frame += 1;
     if (this.frame % 10 === 0) this.fps = delta > 0 ? 0.85 * this.fps + 0.15 / delta : this.fps;
-    if (this.frame % 120 === 0 && this.engine.tier === 'high' && this.fps > 0 && this.fps < 45) {
-      // Sustained slow frames: demote once, and say so in the HUD. At 60 fps
-      // this is two seconds of evidence, not a single stutter.
+    // Two seconds of genuinely slow frames demotes once. Time-based, so a
+    // 10 fps device is not asked to wait twelve seconds for relief.
+    if (this.fps > 0 && this.fps < 45) this.slowSeconds += delta;
+    else this.slowSeconds = 0;
+    if (this.slowSeconds >= 2 && this.engine.tier === 'high') {
       this.engine.demote();
+      this.slowSeconds = 0;
       this.emit();
     }
 
@@ -200,7 +205,7 @@ export class Exhibit {
   }
 
   private applyHome(immediate: boolean): void {
-    const fit = fitHome(this.camera.aspect, 24);
+    const fit = fitHome(this.camera.aspect, 25);
     this.homePose = { position: fit.position, target: fit.target };
     this.flight.flyTo(this.homePose, immediate || this.reducedMotion);
   }
@@ -233,6 +238,12 @@ export class Exhibit {
   }
 
   private handlePointerMove = (event: PointerEvent): void => {
+    // Touch and pen have no hover: picking follows the tap, not the drag, so a
+    // finger crossing the dial cannot strobe the inspector.
+    if (event.pointerType === 'touch' || event.pointerType === 'pen') {
+      this.lastInteraction = performance.now();
+      return;
+    }
     const rect = this.canvas.getBoundingClientRect();
     this.pointerNdc.set(
       ((event.clientX - rect.left) / rect.width) * 2 - 1,
@@ -260,7 +271,11 @@ export class Exhibit {
 
   private handlePointerUp = (event: PointerEvent): void => {
     const moved = Math.hypot(event.clientX - this.pointerDownAt.x, event.clientY - this.pointerDownAt.y);
-    if (moved > 6) return;
+    const touch = event.pointerType === 'touch' || event.pointerType === 'pen';
+    if (moved > 6) {
+      if (touch && this.inspection.mode === 'preview') this.dispatch({ type: 'clear' });
+      return;
+    }
     const id = this.idAt(event.clientX, event.clientY);
     if (this.tour.active) {
       this.tour = skipTour(this.tour);
@@ -269,13 +284,20 @@ export class Exhibit {
     }
     if (id) {
       // A touch has no hover, so the first tap previews and the second pins.
-      if (event.pointerType === 'touch' || event.pointerType === 'pen') {
-        if (this.inspection.mode === 'preview' && this.inspection.id === id) this.dispatch({ type: 'activate', id });
-        else this.dispatch({ type: 'hover', id });
+      // A tap on a different part while pinned moves the pin, not the camera.
+      if (touch) {
+        if (this.inspection.mode === 'pinned') {
+          if (this.inspection.id === id) this.dispatch({ type: 'clear' });
+          else this.dispatch({ type: 'activate', id });
+        } else if (this.inspection.mode === 'preview' && this.inspection.id === id) {
+          this.dispatch({ type: 'activate', id });
+        } else {
+          this.dispatch({ type: 'hover', id });
+        }
       } else {
         this.dispatch({ type: 'activate', id });
       }
-    } else if (this.inspection.mode === 'pinned') {
+    } else if (this.inspection.mode === 'preview' || this.inspection.mode === 'pinned') {
       this.dispatch({ type: 'clear' });
     }
   };
@@ -317,6 +339,10 @@ export class Exhibit {
     }
     if (key === 'Enter' || key === ' ') {
       if (this.inspection.mode === 'preview') this.dispatch({ type: 'pin' });
+      else if (this.inspection.mode === 'idle') {
+        this.preview(CATALOGUE[0]?.id ?? 'main-plate');
+        this.dispatch({ type: 'pin' });
+      }
       event.preventDefault();
       return;
     }
@@ -395,23 +421,20 @@ export class Exhibit {
 
   private applyInspection(state: InspectionState): void {
     const selectedId = state.mode === 'idle' ? null : state.id;
-    // On a phone the inspector is a bottom sheet: lift the orbit target so a
-    // selected part is framed in the upper half rather than behind the card.
-    if (typeof window !== 'undefined' && window.innerWidth <= 860) {
-      const controls = this.engine.controls;
-      const home = fitHome(this.camera.aspect, 24);
-      const lift = selectedId ? 6.5 : 0;
-      const dy = home.target[1] - 6.5 + lift - controls.target.y;
-      controls.target.y += dy;
-      this.camera.position.y += dy;
-      controls.update();
-    }
     const selected = selectedId === null ? null : this.ctx.get(selectedId);
-    this.engine.setSelection(selected ? [selected.group] : []);
+    // The outline pass works on renderable leaves; a Group selection would be
+    // silently ignored. Flatten this one selected part into its meshes.
+    const selectedMeshes: Mesh[] = [];
+    selected?.group.traverse((child) => {
+      if (child instanceof Mesh) selectedMeshes.push(child);
+    });
+    this.engine.setSelection(selectedMeshes);
     const dim = selectedId === null ? 1 : state.mode === 'pinned' ? DIM_PINNED : DIM_PREVIEW;
     for (const part of this.parts) {
+      const selected = part.id === selectedId;
       for (const material of part.materials) {
-        this.engine.finishes.setDim(material, part.id === selectedId ? 1 : dim);
+        this.engine.finishes.setDim(material, selected ? 1 : dim);
+        this.engine.finishes.setHighlight(material, selected);
       }
     }
   }
@@ -440,29 +463,7 @@ export class Exhibit {
   setExplode(value: number): void {
     this.explode = clampExplosion(value);
     this.ctx.applyExplosion(this.explode);
-    this.frameExplosion();
     this.emit();
-  }
-
-  /**
-   * Pull back as the stack separates. The frame is computed from the current
-   * orbit direction, so the explosion never fights the camera controls.
-   */
-  private frameExplosion(): void {
-    if (this.flight.isActive) return;
-    const fit = fitHome(this.camera.aspect, 24);
-    const controls = this.engine.controls;
-    // The hero view looks almost down the watch axis; an exploded stack only
-    // reads from an oblique angle, so the view swings out as it separates.
-    const hero = new Vector3(0.29, -0.38, 0.878).normalize();
-    const oblique = new Vector3(0.12, -0.78, 0.62).normalize();
-    const direction = hero.lerp(oblique, this.explode).normalize();
-    const distance = fit.distance * (1 + this.explode * 0.28);
-    const lift = this.explode * 5.2;
-    controls.target.set(fit.target[0], fit.target[1] + this.explode * 1.6, fit.target[2] + lift);
-    this.offset.copy(direction).multiplyScalar(distance);
-    this.camera.position.copy(controls.target).add(this.offset);
-    controls.update();
   }
 
   get explosion(): number {
@@ -507,6 +508,7 @@ export class Exhibit {
   }
 
   reset(): void {
+    this.hoveredId = null;
     this.inspection = IDLE;
     this.tour = { active: false, index: 0 };
     this.explode = 0;
@@ -547,10 +549,15 @@ export class Exhibit {
     this.emit();
   }
 
+  /** Deterministic camera pose for capture and QA; not exposed in the UI. */
+  setView(position: [number, number, number], target: [number, number, number]): void {
+    this.flight.flyTo({ position, target }, true);
+  }
+
   locate(id: string): void {
     const part = this.ctx.get(id);
     if (!part) return;
-    const anchor = part.anchor;
+    const anchor = part.anchor.clone().add(part.group.position);
     const distance = id === 'case-band' || id === 'crystal' || id === 'chapter-ring' ? 74 : 40;
     const direction = this.camera.position.clone().sub(this.engine.controls.target).normalize();
     const position: [number, number, number] = [

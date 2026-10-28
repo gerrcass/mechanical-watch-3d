@@ -1,4 +1,4 @@
-import { BoxGeometry, CanvasTexture, Mesh, MeshBasicMaterial, PlaneGeometry, SRGBColorSpace, Vector2 } from 'three';
+import { BoxGeometry, Mesh, Vector2 } from 'three';
 import { discShape, extrudeShape, latheAlongZ, organicHole, ringShape } from '../core/geometry';
 import { LAYOUT, PLATE_JEWELS } from './layout';
 import type { WatchContext } from './context';
@@ -73,30 +73,46 @@ export function buildPlate(ctx: WatchContext): void {
     ruby.position.set(x, y, LAYOUT.plate.z + LAYOUT.plate.thickness * 0.5 + 0.14);
   }
 
-  // Etched lettering on the plate: an exhibition movement signs its work.
-  const engraving = document.createElement('canvas');
-  engraving.width = 512;
-  engraving.height = 256;
-  const engravingCtx = engraving.getContext('2d');
-  if (engravingCtx) {
-    engravingCtx.clearRect(0, 0, 512, 256);
-    engravingCtx.fillStyle = 'rgba(18,20,23,0.85)';
-    engravingCtx.font = '500 54px "Times New Roman", "Liberation Serif", serif';
-    engravingCtx.textAlign = 'center';
-    engravingCtx.fillText('CALIBRE MW-01', 256, 92);
-    engravingCtx.font = '400 30px "SFMono-Regular", Menlo, monospace';
-    engravingCtx.letterSpacing = '8px';
-    engravingCtx.fillText('12 JEWELS', 256, 146);
-    engravingCtx.fillText('ADJUSTED', 256, 190);
-    const texture = new CanvasTexture(engraving);
-    texture.colorSpace = SRGBColorSpace;
-    const plane = new Mesh(
-      new PlaneGeometry(7.4, 3.7),
-      new MeshBasicMaterial({ map: texture, transparent: true, depthWrite: false, color: 0xffffff, toneMapped: true }),
+  // Presentation jewels in the open areas of the plate: the empty quarters of
+  // a skeleton need a little light, and a ruby in a gold chaton is the most
+  // watchmaking way to supply it.
+  for (const [x, y] of [
+    [-9.5, 1.8],
+    [-8.9, -5.9],
+    [-3.4, -10.6],
+    [6.0, 9.0],
+    [10.4, -5.2],
+    [11.2, 2.2],
+  ] as const) {
+    const chaton = plateBuild.mesh(
+      latheAlongZ(
+        [
+          new Vector2(0.34, 0.09),
+          new Vector2(0.54, 0.09),
+          new Vector2(0.6, 0.03),
+          new Vector2(0.6, -0.02),
+          new Vector2(0.42, -0.02),
+          new Vector2(0.34, 0.02),
+        ],
+        40,
+      ),
+      'gold',
     );
-    plane.position.set(-8.6, -6.1, LAYOUT.plate.z + LAYOUT.plate.thickness / 2 + 0.012);
-    plane.rotation.z = 0.36;
-    plateBuild.add(plane);
+    chaton.position.set(x, y, LAYOUT.plate.z + LAYOUT.plate.thickness / 2 + 0.07);
+    const ruby = plateBuild.mesh(
+      latheAlongZ(
+        [
+          new Vector2(0, 0.07),
+          new Vector2(0.17, 0.07),
+          new Vector2(0.24, 0.028),
+          new Vector2(0.22, -0.028),
+          new Vector2(0, -0.04),
+        ],
+        28,
+      ),
+      'ruby',
+    );
+    ruby.position.set(x, y, LAYOUT.plate.z + LAYOUT.plate.thickness / 2 + 0.11);
   }
 
   // Case screws around the solid rim.
