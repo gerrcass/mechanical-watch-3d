@@ -83,9 +83,9 @@ The user wants a 3D mechanical watch diagram that is both **hyper-realistic and 
 - One `Engine` owns renderer, camera, orbit controls, environment, composer, resize and the RAF loop. The scene graph is built once; the frame loop mutates transforms and uniforms only.
 - Materials are a shared library: polished steel, brushed steel, rhodium, yellow gold, rose gold, blued steel, ruby (transmissive), sapphire, leather-free dark metal. Metals use metalness 1, roughness in a narrow measured band, and an environment map generated at runtime from an emissive studio rig.
 - Procedural surface finishes are canvas-generated roughness/bump maps: perlage on the main plate, Côtes de Genève on bridges, circular graining on wheels, sunray brushing on the chapter ring. No external image assets.
-- Post-processing: ACES tone mapping, half-resolution UnrealBloom, SMAA, a subtle vignette and film grain. A soft contact shadow grounds the watch. Shadows use one directional map at 2048².
+- Post-processing: ACES tone mapping, SMAA, a subtle vignette and film grain. The UnrealBloom pass was removed after it rendered a black frame in the capture stack; ADR-0008 records the decision. Depth comes from a gradient vitrine shell rather than a visible shadow plane. Shadows use one directional map at 2048².
 - All geometry is procedural. A gear builder takes tooth count, module, thickness, spokes and bevel and returns a beveled extruded wheel plus an arbor and pinion. A bridge builder takes a closed spline and returns a beveled plate with screw and jewel holes. Screws, jewels, hands and the case are parameterised factories.
-- Quality tiers: `high` and `lite`. `lite` caps DPR at 1.5, halves bloom, disables grain and uses a smaller shadow map. Auto-select by viewport and device, with a manual override in the debug HUD; automatic downgrade if the measured frame time stays above budget.
+- Quality tiers: `high` and `lite`. `lite` caps DPR at 1.5, disables grain and SMAA and uses a smaller shadow map. Auto-select by viewport and device, with a manual override in the debug HUD; automatic downgrade after two seconds of sustained slow frames.
 
 ### The calibre (single source of truth)
 
@@ -108,7 +108,7 @@ The user wants a 3D mechanical watch diagram that is both **hyper-realistic and 
 
 - State machine: `idle → preview → pinned`. Hover previews; click or Enter pins; Escape clears; bracket keys cycle; tap previews on touch and a second tap pins.
 - Raycasting runs against registered pick targets only, at most once per frame and only when the pointer moved. The outline uses a single selection outline pass, not per-part clones.
-- The inspector is DOM, always mounted, and updates from a single render function. It is an `aria-live="polite"` region. Focus is never stolen from the canvas.
+- The inspector is DOM, always mounted, and updates from a single render function. It is a labelled region that announces through a dedicated `aria-live="polite"` status element, so a hover does not re-announce the whole card. Focus is never stolen from the canvas.
 - The inspector card shows category, name, job, detail, spec, and a "locate" action that flies the camera to the part.
 - Mobile: bottom sheet with a drag handle, maximum 45% viewport height, and camera framing that keeps the selected part in the upper half.
 - 3D labels are toggled, anchored to part positions, and hidden behind geometry only if cheap; otherwise always on top. They are decorative and duplicated in the DOM list.

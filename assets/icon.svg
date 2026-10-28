@@ -1,4 +1,29 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-  <rect width="64" height="64" rx="14" fill="#9333ea"/>
-  <text x="32" y="32" dy="0.35em" text-anchor="middle" font-family="ui-sans-serif, system-ui, -apple-system, sans-serif" font-size="26" font-weight="600" fill="#ffffff">MW</text>
+  <defs>
+    <radialGradient id="bg" cx="38%" cy="30%" r="80%">
+      <stop offset="0" stop-color="#211d16" />
+      <stop offset="0.55" stop-color="#0c0d10" />
+      <stop offset="1" stop-color="#050608" />
+    </radialGradient>
+    <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#f0d9a6" />
+      <stop offset="0.5" stop-color="#c9ab74" />
+      <stop offset="1" stop-color="#8d6f3d" />
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="14" fill="url(#bg)" />
+  <circle cx="32" cy="32" r="18" fill="none" stroke="#2a2d33" stroke-width="4" />
+  <circle cx="32" cy="32" r="18" fill="none" stroke="url(#gold)" stroke-width="1.6" />
+  <circle cx="32" cy="32" r="13.5" fill="none" stroke="#6f5b38" stroke-width="0.7" />
+  <g stroke="url(#gold)" stroke-linecap="round">
+    <path d="M32 15.5v2.2M32 46.3v2.2M15.5 32h2.2M46.3 32h2.2" stroke-width="1.4" />
+    <path d="M24.5 17.4l.8 2M39.5 44.6l.8 2M17.4 24.5l2 .8M44.6 39.5l2 .8M17.4 39.5l2-.8M44.6 24.5l2-.8M24.5 46.6l.8-2M39.5 19.4l.8-2" stroke-width="0.9" opacity="0.8" />
+  </g>
+  <g stroke-linecap="round">
+    <path d="M32 32V21" stroke="#efe9dd" stroke-width="2.1" />
+    <path d="M32 32l7.5 5.2" stroke="url(#gold)" stroke-width="2.3" />
+    <circle cx="32" cy="32" r="1.8" fill="#c9ab74" />
+  </g>
+  <rect x="51" y="29.5" width="3.2" height="5" rx="1" fill="url(#gold)" />
+  <rect x="49.5" y="31" width="1.6" height="2" fill="#8d6f3d" />
 </svg>

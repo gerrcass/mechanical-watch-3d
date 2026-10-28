@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>The Open Movement — Calibre MW-01</title>
+    <meta
+      name="description"
+      content="An interactive, procedurally modelled skeleton watch. Hover any part of Calibre MW-01 to learn what it does and see it move."
+    />
+    <meta name="theme-color" content="#050608" />
+    <link rel="icon" href="./assets/icon.svg" type="image/svg+xml" />
+  </head>
+  <body>
+    <main class="app" id="app" data-ready="false">
+      <section class="stage" aria-label="Interactive three-dimensional exhibit of Calibre MW-01">
+        <canvas
+          id="scene"
+          tabindex="0"
+          aria-label="Calibre MW-01 movement. Use arrow keys to orbit, plus and minus to zoom, brackets to cycle parts and Enter to pin."
+          aria-describedby="canvas-help"
+        ></canvas>
+        <div class="stage-vignette" aria-hidden="true"></div>
+
+        <header class="masthead">
+          <p class="eyebrow">Calibre MW-01 <span aria-hidden="true">·</span> Manual wind <span aria-hidden="true">·</span> 28,800 vph</p>
+          <h1>The Open<br /><em>Movement</em></h1>
+          <p class="lede">
+            A skeletonised four-hertz calibre, laid bare. Hover a component to learn its name and its job; click to pin it
+            while you look around.
+          </p>
+        </header>
+
+        <aside class="inspector" id="inspector" role="region" aria-label="Inspector"></aside>
+        <p class="sr-only" id="inspection-live" role="status" aria-live="polite" aria-atomic="true"></p>
+
+        <section class="tour" id="tour" hidden aria-label="Guided tour" role="status" aria-live="polite" aria-atomic="true">
+          <p class="tour-step" id="tour-step">01 · Power</p>
+          <p class="tour-copy" id="tour-copy"></p>
+          <div class="tour-actions">
+            <button type="button" id="tour-prev" class="ghost">Previous</button>
+            <button type="button" id="tour-next" class="solid">Next</button>
+            <button type="button" id="tour-skip" class="ghost">Leave tour</button>
+          </div>
+        </section>
+
+        <div class="labels" id="labels" aria-hidden="true"></div>
+
+        <p class="help" id="canvas-help" role="note">
+          <span><kbd>←</kbd><kbd>↑</kbd><kbd>→</kbd><kbd>↓</kbd> orbit</span>
+          <span><kbd>+</kbd><kbd>−</kbd> zoom</span>
+          <span><kbd>[</kbd><kbd>]</kbd> cycle parts</span>
+          <span><kbd>Enter</kbd> pin</span>
+          <span><kbd>Esc</kbd> clear</span>
+        </p>
+
+        <div class="hud" id="hud" hidden aria-hidden="true"></div>
+
+        <footer class="dock" aria-label="Exhibit controls">
+          <div class="dock-group dock-time">
+            <button type="button" class="icon-button" id="play" data-paused="false" aria-label="Pause the movement">
+              <span class="play-glyph" aria-hidden="true"></span>
+            </button>
+            <div class="seg" role="group" aria-label="Display speed">
+              <button type="button" data-speed="1" aria-pressed="true">1×</button>
+              <button type="button" data-speed="60" aria-pressed="false">60×</button>
+              <button type="button" data-speed="600" aria-pressed="false">600×</button>
+            </div>
+            <div class="seg seg-slow" role="group" aria-label="Slow motion">
+              <button type="button" data-slow="1" aria-pressed="true" title="Real time">Real</button>
+              <button type="button" data-slow="0.1" aria-pressed="false" title="One tenth speed">0.1×</button>
+              <button type="button" data-slow="0.02" aria-pressed="false" title="One fiftieth speed">0.02×</button>
+            </div>
+          </div>
+
+          <div class="dock-group dock-view">
+            <label class="slider" for="explode">
+              <span>Explode</span>
+              <input id="explode" type="range" min="0" max="100" step="1" value="0" />
+              <output for="explode" id="explode-value">0</output>
+            </label>
+            <button type="button" class="toggle" id="labels-toggle" aria-pressed="false">Labels</button>
+            <button type="button" class="toggle" id="tour-start">Tour</button>
+          </div>
+
+          <div class="dock-group dock-actions">
+            <div class="reserve" role="meter" id="reserve" aria-label="Power reserve" aria-valuemin="0" aria-valuemax="42" aria-valuenow="42">
+              <span class="reserve-track" aria-hidden="true"><span class="reserve-fill" id="reserve-fill"></span></span>
+              <span class="reserve-text" id="reserve-text">42 h</span>
+            </div>
+            <button type="button" class="toggle wind" id="wind">Wind</button>
+            <button type="button" class="toggle" id="reset">Reset</button>
+          </div>
+        </footer>
+
+        <div class="veil" id="veil">
+          <div class="veil-mark" aria-hidden="true">
+            <span class="veil-monogram">MW</span>
+            <span class="veil-number">01</span>
+          </div>
+          <p class="veil-caption">Winding the mainspring</p>
+        </div>
+
+        <section class="fallback" id="fallback" hidden>
+          <p class="eyebrow">Calibre MW-01</p>
+          <h2>The Open Movement</h2>
+          <p class="fallback-lede">
+            This exhibit needs WebGL to show the movement in three dimensions. The calibre and its parts are still
+            described here.
+          </p>
+          <div id="fallback-parts"></div>
+        </section>
+      </section>
+    </main>
+    <noscript>
+      <style>
+        .app { display: none !important; }
+        .noscript { min-height: 100vh; display: grid; place-content: center; gap: 1rem; padding: 3rem; background: #050608; color: #efe9dd; font-family: Georgia, serif; }
+        .noscript p { max-width: 34rem; line-height: 1.7; color: #c9c4b8; }
+      </style>
+      <div class="noscript">
+        <h1>The Open Movement — Calibre MW-01</h1>
+        <p>
+          An interactive skeleton watch needs JavaScript and WebGL. Calibre MW-01 is an illustrative four-hertz,
+          manually wound movement with a Swiss lever escapement, a 42-hour power reserve and 38 described parts.
+        </p>
+      </div>
+    </noscript>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
