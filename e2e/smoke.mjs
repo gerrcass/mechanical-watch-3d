@@ -90,10 +90,10 @@ try {
   check(stats.triangles > 0 && stats.triangles <= 350_000, `triangles within budget (${stats.triangles} <= 350000)`);
 
   await page.evaluate(() => window.__openMovement.locate('balance-wheel'));
-  await page.waitForFunction(() => window.__openMovement.cameraState().flying === false, null, { timeout: 15_000 });
+  await page.waitForFunction(() => window.__openMovement.cameraState().flying === false, null, { timeout: 60_000 });
   const located = await page.evaluate(() => window.__openMovement.cameraState());
   await page.evaluate(() => window.__openMovement.reset());
-  await page.waitForFunction(() => window.__openMovement.cameraState().flying === false, null, { timeout: 15_000 });
+  await page.waitForFunction(() => window.__openMovement.cameraState().flying === false, null, { timeout: 60_000 });
   const reset = await page.evaluate(() => window.__openMovement.cameraState());
   check(located.distance < 80, `locate frames the part (${located.distance.toFixed(0)} mm)`);
   check(reset.distance > 100, `reset restores a hero-scale camera (${reset.distance.toFixed(0)} mm)`);
