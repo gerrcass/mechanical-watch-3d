@@ -6,6 +6,7 @@ Reviewed, not implemented. These are the judgement calls a reviewer enforces tha
 
 - The calibre is the single source of truth. If a scene module divides a ratio, hard-codes a beat rate, or advances a wheel by a delta, reject it.
 - The movement must agree with the copy. A part's spec line and its geometry, teeth count and motion must describe the same object.
+- Check the assembly, not only the part: every bridge must sit on its intended layer, every jewel must have an arbor that reaches it, and no bridge or hand may cross the chapter ring. The hero and exploded screenshots are the evidence.
 - MW-01 is illustrative. Copy may say "in this calibre" or "represented here"; it may not imply a commercial replica.
 - Finishing follows real practice: anglage on exposed bridge edges, perlage on the plate, Côtes de Genève on bridges, circular graining on wheels, blued screws, ruby jewels with chatons where visible.
 

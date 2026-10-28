@@ -48,9 +48,9 @@ npm run shot       # deterministic hero + hover screenshots into docs/evidence/
 
 ## Delivery
 
-- Integration branch `feat/open-movement`; one PR into `main` when all tickets pass.
+- Integration branch `feat/open-movement`; one PR into `main` when all tickets pass. If it is already checked out, `git worktree list` is the map.
 - Before the PR: two independent review subagents on different lenses (horology/geometry and interaction/performance), compare findings, refine the dispatch, run a second round. Fix what survives.
-- Use the `/pr` skill template (`~/.config/opencode/skills/pr/SKILL.md`). Commit screenshots to `docs/evidence/` and embed them; attach the test log as a fenced block.
+- Use the `/pr` skill template (`~/.config/opencode/skills/pr/SKILL.md`). Commit screenshots to `docs/evidence/`, embed them, and upload the same files with `gh pr create --attach` / `gh pr edit --attach`; attach the test log as a fenced block.
 - Merge only with green tests/build and a verified screenshot. Then deploy `main` to Pages and confirm the live URL.
 - Do not leave a ticket, issue or PR open without a stated reason.
 - Review standards: `CODING_STANDARDS.md`.
