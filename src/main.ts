@@ -165,15 +165,20 @@ function boot(): void {
     play?.setAttribute('data-paused', String(snapshot.paused));
   };
 
+  let lastInspectionKey = '';
   const syncUi = (): void => {
     const snapshot = exhibit.snapshot();
     const entry = snapshot.inspection.id ? partById(snapshot.inspection.id) : null;
-    inspector?.render(
-      snapshot.inspection,
-      entry ?? null,
-      entry ? (indexOf.get(entry.id) ?? -1) : -1,
-      CATALOGUE.length,
-    );
+    const inspectionKey = `${snapshot.inspection.mode}:${snapshot.inspection.id ?? ''}`;
+    if (inspectionKey !== lastInspectionKey) {
+      lastInspectionKey = inspectionKey;
+      inspector?.render(
+        snapshot.inspection,
+        entry ?? null,
+        entry ? (indexOf.get(entry.id) ?? -1) : -1,
+        CATALOGUE.length,
+      );
+    }
 
     speedButtons.forEach((button) => {
       const active = Number(button.dataset.speed) === snapshot.speed;
@@ -190,6 +195,7 @@ function boot(): void {
     document.body.dataset.inspected = snapshot.inspection.id ?? '';
 
     const tour = currentStop(snapshot.tour);
+    document.body.classList.toggle('tour-active', Boolean(tour));
     if (tourPanel) tourPanel.hidden = !tour;
     if (tour) {
       if (tourStep) tourStep.textContent = tour.title;

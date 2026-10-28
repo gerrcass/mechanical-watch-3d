@@ -90,15 +90,18 @@ export function buildEscapement(ctx: WatchContext): void {
   forkPivot.add(palletBar);
 
   // Two ruby stones at the ends of the pallet bar.
-  const stoneBuild = ctx.part('pallet-stones', { x: LAYOUT.pallet.x, y: LAYOUT.pallet.y, z: -1.5 });
+  const stoneBuild = ctx.part('pallet-stones', { x: LAYOUT.pallet.x, y: LAYOUT.pallet.y, z: -1.62 });
+  const stonePivot = new Group();
+  stonePivot.position.set(LAYOUT.pallet.x, LAYOUT.pallet.y, -1.62);
+  stoneBuild.add(stonePivot);
   for (const side of [-1, 1]) {
     const stone = stoneBuild.mesh(new BoxGeometry(0.18, 0.42, 0.16), 'ruby');
     const toward = Math.atan2(2.0, 2.17);
     const angle = toward + Math.PI / 2;
     stone.position.set(
-      LAYOUT.pallet.x + Math.cos(toward) * 1.05 + Math.cos(angle) * 0.78 * side,
-      LAYOUT.pallet.y + Math.sin(toward) * 1.05 + Math.sin(angle) * 0.78 * side,
-      -1.95,
+      Math.cos(toward) * 1.05 + Math.cos(angle) * 0.78 * side,
+      Math.sin(toward) * 1.05 + Math.sin(angle) * 0.78 * side,
+      0,
     );
     stone.rotation.z = angle;
   }
@@ -127,7 +130,7 @@ export function buildEscapement(ctx: WatchContext): void {
   balanceBuild.add(balancePivot);
 
   // Rim: a lenticular band of gold, the visual anchor at six o'clock.
-  const rim = new Mesh(new TorusGeometry(3.86, 0.34, 18, 128), ctx.finishes.create('gold'));
+  const rim = new Mesh(new TorusGeometry(3.55, 0.3, 18, 128), ctx.finishes.create('gold'));
   rim.scale.z = 0.72;
   rim.castShadow = true;
   rim.receiveShadow = true;
@@ -135,7 +138,7 @@ export function buildEscapement(ctx: WatchContext): void {
 
   for (let index = 0; index < 3; index += 1) {
     const angle = (index / 3) * Math.PI * 2 + 0.3;
-    const arm = box(3.8, 0.46, 0.18, ctx.finishes.create('gold'));
+    const arm = box(3.5, 0.44, 0.18, ctx.finishes.create('gold'));
     arm.rotation.z = angle;
     arm.position.set(Math.cos(angle) * 1.85, Math.sin(angle) * 1.85, 0);
     balancePivot.add(arm);
@@ -166,7 +169,7 @@ export function buildEscapement(ctx: WatchContext): void {
   for (let index = 0; index < 8; index += 1) {
     const angle = (index / 8) * Math.PI * 2;
     const screw = new Mesh(screwGeometry, ctx.finishes.create('gold'));
-    screw.position.set(Math.cos(angle) * 3.9, Math.sin(angle) * 3.9, 0.04);
+    screw.position.set(Math.cos(angle) * 3.6, Math.sin(angle) * 3.6, 0.16);
     screw.rotation.z = angle;
     screw.castShadow = true;
     balancePivot.add(screw);
@@ -190,7 +193,7 @@ export function buildEscapement(ctx: WatchContext): void {
   balancePivot.add(roller);
   const impulse = box(0.16, 0.38, 0.2, ctx.finishes.create('ruby'));
   // The pin must meet the fork, which reaches the balance from the lower left.
-  impulse.position.set(-0.74, -0.74, -2.4);
+  impulse.position.set(-0.43, -1.25, -2.4);
   balancePivot.add(impulse);
 
   /* Hairspring ------------------------------------------------------------ */
@@ -260,6 +263,7 @@ export function buildEscapement(ctx: WatchContext): void {
     const beat = beatAt(seconds);
     balancePivot.rotation.z = beat.balanceDeg * DEG;
     forkPivot.rotation.z = forkAngle(seconds);
+    stonePivot.rotation.z = forkAngle(seconds);
     const shader = hairspringMaterial.userData.shader as
       | { uniforms: { uBreath: { value: number } } }
       | null;

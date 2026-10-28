@@ -279,7 +279,7 @@ export const CATALOGUE: readonly PartCatalogueEntry[] = [
     layer: 'train',
     job: 'The intermediate wheel that steps the train speed up by eight.',
     detail:
-      'Nothing is displayed from the third wheel — its job is ratio. Sixty teeth driving an eight-leaf pinion turn the fourth wheel sixty times for each turn of the center wheel.',
+      'Nothing is displayed from the third wheel — its job is ratio. Sixty teeth driving an eight-leaf pinion turn the fourth wheel seven and a half times for each turn of the center wheel.',
     spec: '60 teeth · 8 rev / hour · 8-leaf fourth pinion',
     explodeBias: 0.8,
     targets: ['third-wheel'],
@@ -303,7 +303,7 @@ export const CATALOGUE: readonly PartCatalogueEntry[] = [
     layer: 'escapement',
     job: 'The last wheel of the train, released one half-tooth at a time by the pallet fork.',
     detail:
-      'Twenty pointed teeth stand in the way of the train’s energy. Each beat lets one tooth escape, so the wheel turns once every five seconds while the train tries to run freely. Its rim is lightened so the wheel accelerates quickly between beats.',
+      'Twenty pointed teeth stand in the way of the train’s energy. Each beat lets half a tooth escape — two beats per tooth — so the wheel turns once every five seconds while the train tries to run freely. Its rim is lightened so the wheel accelerates quickly between beats.',
     spec: '20 teeth · 9° per beat · 1 rev / 5 s',
     explodeBias: 0,
     targets: ['escape-wheel'],
@@ -423,7 +423,7 @@ export const CATALOGUE: readonly PartCatalogueEntry[] = [
     layer: 'hands',
     job: 'It shows the minute, turning once an hour.',
     detail:
-      'Longer and thinner than the hour hand so the two cannot be confused at a glance. Its counterweight is sized to keep the hand balanced on its pipe as the watch changes position.',
+      'Longer and thinner than the hour hand so the two cannot be confused at a glance. Its tail is sized to keep the blade balanced on its pipe as the watch changes position.',
     spec: 'Gilt brass · 6° / minute · 12.6 mm',
     explodeBias: 0.5,
     targets: ['minute-hand'],
@@ -436,7 +436,7 @@ export const CATALOGUE: readonly PartCatalogueEntry[] = [
     job: 'It turns once a minute, driven directly by the fourth wheel.',
     detail:
       'A small seconds hand is the most honest display in a mechanical watch: it is the train itself, visible. Every beat of the escapement moves it one small step.',
-    spec: 'Blued steel · 6° / second · 4.4 mm',
+    spec: 'Blued steel · 6° / second · 4.3 mm',
     explodeBias: 0.8,
     targets: ['seconds-hand'],
   },

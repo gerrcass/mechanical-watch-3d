@@ -156,8 +156,9 @@ export class Exhibit {
   private tick(now: number, delta: number): void {
     this.frame += 1;
     if (this.frame % 10 === 0) this.fps = delta > 0 ? 0.85 * this.fps + 0.15 / delta : this.fps;
-    if (this.frame === 180 && this.engine.tier === 'high' && this.fps < 42) {
-      // Sustained slow frames: demote once, and say so in the HUD.
+    if (this.frame % 120 === 0 && this.engine.tier === 'high' && this.fps > 0 && this.fps < 45) {
+      // Sustained slow frames: demote once, and say so in the HUD. At 60 fps
+      // this is two seconds of evidence, not a single stutter.
       this.engine.demote();
       this.emit();
     }
@@ -387,12 +388,24 @@ export class Exhibit {
     const next = reduceInspection(this.inspection, event);
     if (next.mode === this.inspection.mode && next.id === this.inspection.id) return;
     this.inspection = next;
+    if (next.mode === 'idle') this.hoveredId = null;
     this.applyInspection(next);
     this.emit();
   }
 
   private applyInspection(state: InspectionState): void {
     const selectedId = state.mode === 'idle' ? null : state.id;
+    // On a phone the inspector is a bottom sheet: lift the orbit target so a
+    // selected part is framed in the upper half rather than behind the card.
+    if (typeof window !== 'undefined' && window.innerWidth <= 860) {
+      const controls = this.engine.controls;
+      const home = fitHome(this.camera.aspect, 24);
+      const lift = selectedId ? 6.5 : 0;
+      const dy = home.target[1] - 6.5 + lift - controls.target.y;
+      controls.target.y += dy;
+      this.camera.position.y += dy;
+      controls.update();
+    }
     const selected = selectedId === null ? null : this.ctx.get(selectedId);
     this.engine.setSelection(selected ? [selected.group] : []);
     const dim = selectedId === null ? 1 : state.mode === 'pinned' ? DIM_PINNED : DIM_PREVIEW;

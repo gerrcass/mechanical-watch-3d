@@ -24,7 +24,7 @@ export const LAYOUT = {
   fourth: { x: 5.14, y: -1.67, pitchRadius: pitch(72), teeth: 72, z: -1.55 },
   escape: { x: 3.54, y: -6.07, wheelRadius: 1.9, pinionRadius: pitch(6, 0.12), z: -1.95 },
   pallet: { x: 1.37, y: -8.07, z: -1.35 },
-  balance: { x: -0.4, y: -9.2, radius: 4.2, z: 1.0 },
+  balance: { x: -0.4, y: -8.9, radius: 3.85, z: 1.0 },
   hairspring: { z: 1.52 },
   balanceCock: { z: 2.52 },
   motion: { cannonZ: 2.4, minuteWheel: { x: 1.61, y: -2.29, radius: 1.8, z: 2.52 }, hourWheel: { radius: 2.2, z: 2.78 } },

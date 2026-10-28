@@ -906,7 +906,18 @@ input:focus-visible {
   }
   .inspector {
     bottom: 9.6rem;
-    max-height: 40vh;
+    max-height: 12rem;
+    overflow: hidden;
+  }
+  .inspector-detail {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .inspector-spec {
+    padding-top: 0.4rem;
+    margin-top: 0.5rem;
   }
   .inspector-detail {
     display: -webkit-box;
@@ -952,6 +963,9 @@ input:focus-visible {
     top: auto;
     bottom: 9.6rem;
     max-width: none;
+  }
+  body.tour-active .inspector {
+    display: none;
   }
   .tour-copy {
     font-size: 0.82rem;
