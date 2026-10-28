@@ -1,6 +1,7 @@
 import { spawn } from 'node:child_process';
 import { setTimeout as delay } from 'node:timers/promises';
 import path from 'node:path';
+import { existsSync } from 'node:fs';
 
 const root = path.resolve(new URL('..', import.meta.url).pathname);
 
@@ -48,6 +49,25 @@ export async function startPreview(port = 4173) {
   throw new Error(`Preview server did not start.\n${output}`);
 }
 
+/** Find a usable Chromium: CI env override, common system paths, then Playwright's own. */
+export function resolveChromium() {
+  const candidates = [
+    process.env.PLAYWRIGHT_CHROMIUM_PATH,
+    '/usr/bin/chromium-browser',
+    '/usr/bin/chromium',
+    '/usr/bin/google-chrome-stable',
+    '/usr/bin/google-chrome',
+  ].filter(Boolean);
+  for (const candidate of candidates) {
+    try {
+      if (existsSync(candidate)) return candidate;
+    } catch {
+      // keep looking
+    }
+  }
+  return undefined; // chromium.launch() will use Playwright's managed browser
+}
+
 export const CHROMIUM_ARGS = [
   '--no-sandbox',
   '--use-angle=swiftshader',
@@ -57,4 +77,4 @@ export const CHROMIUM_ARGS = [
   '--force-color-profile=srgb',
 ];
 
-export const CHROMIUM_PATH = '/usr/bin/chromium-browser';
+

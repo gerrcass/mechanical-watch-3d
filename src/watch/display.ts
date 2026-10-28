@@ -9,7 +9,7 @@ import {
   Vector2,
 } from 'three';
 import { extrudeShape, gearShape, handShape, latheAlongZ, ringShape, roundedRectShape } from '../core/geometry';
-import { CALIBRE, handAngles, handRotation, motionAngles } from '../calibre';
+import { CALIBRE, handAngles, handRotation, motionAngles, secondsStepAngle } from '../calibre';
 import { LAYOUT } from './layout';
 import type { WatchContext } from './context';
 
@@ -175,7 +175,7 @@ export function buildDisplay(ctx: WatchContext): void {
     const angle = (hour / 12) * Math.PI * 2;
     const bar = chapterBuild.mesh(barGeometry, 'gold');
     bar.scale.set(1, hour % 3 === 0 ? 1.35 : 1, 1);
-    bar.position.set(Math.cos(angle) * 14.05, Math.sin(angle) * 14.05, LAYOUT.chapter.z + 0.14);
+    bar.position.set(Math.cos(angle) * 14.05, Math.sin(angle) * 14.05, LAYOUT.chapter.z + 0.26);
     bar.rotation.z = angle + Math.PI / 2;
   }
 
@@ -195,14 +195,14 @@ export function buildDisplay(ctx: WatchContext): void {
       side: DoubleSide,
     });
     const plane = new Mesh(new PlaneGeometry(1.95, 1.95), material);
-    plane.position.set(Math.cos(angle) * 14.12, Math.sin(angle) * 14.12, LAYOUT.chapter.z + 0.14);
+    plane.position.set(Math.cos(angle) * 14.12, Math.sin(angle) * 14.12, LAYOUT.chapter.z + 0.28);
     chapterBuild.add(plane);
   }
 
   /* Hands ----------------------------------------------------------------- */
   const hourHandBuild = ctx.part('hour-hand', { x: 0, y: 0, z: LAYOUT.hands.hourZ });
   const hourHand = hourHandBuild.mesh(
-    extrudeShape(handShape({ length: 7.7, width: 0.7, tail: -1.4, tipWidth: 0.3, holeRadius: 0.46 }), {
+    extrudeShape(handShape({ length: 9.0, width: 0.74, tail: -1.4, tipWidth: 0.3, holeRadius: 0.46 }), {
       depth: 0.1,
       bevelSize: 0.03,
       bevelThickness: 0.025,
@@ -215,7 +215,7 @@ export function buildDisplay(ctx: WatchContext): void {
 
   const minuteHandBuild = ctx.part('minute-hand', { x: 0, y: 0, z: LAYOUT.hands.minuteZ });
   const minuteHand = minuteHandBuild.mesh(
-    extrudeShape(handShape({ length: 11.2, width: 0.54, tail: -1.6, tipWidth: 0.22, holeRadius: 0.38 }), {
+    extrudeShape(handShape({ length: 12.6, width: 0.56, tail: -1.6, tipWidth: 0.22, holeRadius: 0.38 }), {
       depth: 0.09,
       bevelSize: 0.026,
       bevelThickness: 0.02,
@@ -259,6 +259,6 @@ export function buildDisplay(ctx: WatchContext): void {
     const angles = handAngles(CALIBRE.startTimeSeconds + seconds);
     hourHand.rotation.z = handRotation(angles.hour);
     minuteHand.rotation.z = handRotation(angles.minute);
-    secondsPivot.rotation.z = handRotation(angles.second);
+    secondsPivot.rotation.z = secondsStepAngle(CALIBRE.startTimeSeconds + seconds);
   });
 }

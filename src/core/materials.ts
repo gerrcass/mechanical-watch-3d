@@ -119,7 +119,7 @@ const FINISHES: Readonly<Record<FinishName, FinishDefinition>> = {
     envMapIntensity: 1.6,
     clearcoat: 1,
     transparent: true,
-    opacity: 0.16,
+    opacity: 0.06,
   },
   chapterDark: {
     color: 0x23262a,

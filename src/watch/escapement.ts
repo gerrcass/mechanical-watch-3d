@@ -1,6 +1,6 @@
 import { BoxGeometry, DoubleSide, Float32BufferAttribute, Group, Mesh, TorusGeometry, Vector2 } from 'three';
 import { extrudeShape, latheAlongZ, ringShape, spiralRibbonGeometry } from '../core/geometry';
-import { DEG, beatAt, forkAngle, hairspringBreath } from '../calibre';
+import { DEG, beatAt, forkAngle, hairspringBreath, normalizeAngle } from '../calibre';
 import { LAYOUT } from './layout';
 import type { WatchContext } from './context';
 import type { MeshPhysicalMaterial } from 'three';
@@ -41,7 +41,9 @@ export function buildEscapement(ctx: WatchContext): void {
   const escapePivot = ctx.get('escape-wheel')?.group.children[0];
   if (escapePivot instanceof Group) {
     ctx.onUpdate((seconds) => {
-      escapePivot.rotation.z = beatAt(seconds).escapeAngle;
+      // Wrap before assigning: at 600× the raw angle would reach millions of
+      // degrees and lose float precision within minutes.
+      escapePivot.rotation.z = normalizeAngle(beatAt(seconds).escapeAngle);
     });
   }
 
@@ -69,18 +71,34 @@ export function buildEscapement(ctx: WatchContext): void {
     forkPivot.add(prong);
   }
 
-  const palletBar = armBetween(-1.2, -0.82, 1.16, 0.34, 0.24, 0.18, steel);
+  // The pallet arms point at the escape wheel but the bar itself is
+  // perpendicular to that line, so both stones meet the wheel's rim.
+  const towardWheel = Math.atan2(2.0, 2.17);
+  const barCenterX = Math.cos(towardWheel) * 1.05;
+  const barCenterY = Math.sin(towardWheel) * 1.05;
+  const acrossX = Math.cos(towardWheel + Math.PI / 2) * 0.78;
+  const acrossY = Math.sin(towardWheel + Math.PI / 2) * 0.78;
+  const palletBar = armBetween(
+    barCenterX - acrossX,
+    barCenterY - acrossY,
+    barCenterX + acrossX,
+    barCenterY + acrossY,
+    0.24,
+    0.18,
+    steel,
+  );
   forkPivot.add(palletBar);
 
   // Two ruby stones at the ends of the pallet bar.
   const stoneBuild = ctx.part('pallet-stones', { x: LAYOUT.pallet.x, y: LAYOUT.pallet.y, z: -1.5 });
   for (const side of [-1, 1]) {
     const stone = stoneBuild.mesh(new BoxGeometry(0.18, 0.42, 0.16), 'ruby');
-    const angle = Math.atan2(0.34 + 0.82, 1.16 + 1.2);
+    const toward = Math.atan2(2.0, 2.17);
+    const angle = toward + Math.PI / 2;
     stone.position.set(
-      LAYOUT.pallet.x + Math.cos(angle) * 1.28 * side,
-      LAYOUT.pallet.y + Math.sin(angle) * 1.28 * side,
-      -1.5,
+      LAYOUT.pallet.x + Math.cos(toward) * 1.05 + Math.cos(angle) * 0.78 * side,
+      LAYOUT.pallet.y + Math.sin(toward) * 1.05 + Math.sin(angle) * 0.78 * side,
+      -1.95,
     );
     stone.rotation.z = angle;
   }
@@ -171,7 +189,8 @@ export function buildEscapement(ctx: WatchContext): void {
   roller.castShadow = true;
   balancePivot.add(roller);
   const impulse = box(0.16, 0.38, 0.2, ctx.finishes.create('ruby'));
-  impulse.position.set(0.74, -0.74, -2.4);
+  // The pin must meet the fork, which reaches the balance from the lower left.
+  impulse.position.set(-0.74, -0.74, -2.4);
   balancePivot.add(impulse);
 
   /* Hairspring ------------------------------------------------------------ */
@@ -181,7 +200,6 @@ export function buildEscapement(ctx: WatchContext): void {
     outerRadius: 2.25,
     turns: 5,
     width: 0.055,
-    z: LAYOUT.hairspring.z,
     segments: 520,
   });
   const tAttribute = new Float32Array(springGeometry.getAttribute('position').count);
@@ -212,6 +230,9 @@ export function buildEscapement(ctx: WatchContext): void {
     hairspringMaterial.userData.shader = shader;
   };
   const hairspring = new Mesh(springGeometry, hairspringMaterial);
+  // The mesh sits on the balance staff so the shader's breathing rotation
+  // happens around the staff, not around the middle of the dial.
+  hairspring.position.set(LAYOUT.balance.x, LAYOUT.balance.y, LAYOUT.hairspring.z);
   hairspring.castShadow = true;
   hairspringBuild.add(hairspring);
 

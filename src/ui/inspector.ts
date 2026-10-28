@@ -59,6 +59,7 @@ export class Inspector {
     this.locate.type = 'button';
     this.locate.textContent = 'Locate';
     this.locate.addEventListener('click', () => {
+      if (this.locate.getAttribute('aria-disabled') === 'true') return;
       if (this.currentId) this.locateHandler?.(this.currentId);
     });
     actions.append(this.status, this.locate);
@@ -83,7 +84,7 @@ export class Inspector {
   render(state: InspectionState, entry: PartCatalogueEntry | null, index = -1, total = 0): void {
     const active = isActive(state) && entry !== null;
     this.root.classList.toggle('is-idle', !active);
-    this.locate.disabled = !active;
+    this.locate.setAttribute('aria-disabled', String(!active));
 
     if (!active || !entry) {
       this.currentId = null;

@@ -19,7 +19,7 @@ export function initialClock(): ClockState {
  * accumulator; the escapement and train read from it, so changing speed or
  * slow motion can never break their relative phase.
  */
-export function advanceClock(
+export function advanceClockMutable(
   state: ClockState,
   realDeltaSeconds: number,
   speed: SpeedSelection,
@@ -30,12 +30,19 @@ export function advanceClock(
   // The mainspring can only give what it holds.
   const available = state.reserveHours * 3600;
   const displayDelta = Math.min(requested, available);
-  const reserveHours = clamp(state.reserveHours - displayDelta / 3600, 0, CALIBRE.powerReserveHours);
-  return {
-    displaySeconds: state.displaySeconds + displayDelta,
-    reserveHours,
-    running: reserveHours > 0,
-  };
+  state.displaySeconds += displayDelta;
+  state.reserveHours = clamp(state.reserveHours - displayDelta / 3600, 0, CALIBRE.powerReserveHours);
+  state.running = state.reserveHours > 0;
+  return state;
+}
+
+export function advanceClock(
+  state: ClockState,
+  realDeltaSeconds: number,
+  speed: SpeedSelection,
+  slowMotion: SlowMotionSelection,
+): ClockState {
+  return advanceClockMutable({ ...state }, realDeltaSeconds, speed, slowMotion);
 }
 
 /** Add hours of running time from a winding action, clamped at a full wind. */

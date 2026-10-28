@@ -153,6 +153,18 @@ function boot(): void {
   canvas.addEventListener('blur', () => help?.classList.remove('is-visible'));
   canvas.addEventListener('pointerdown', () => help?.classList.add('is-visible'));
 
+  const syncClock = (snapshot: ReturnType<typeof exhibit.snapshot>): void => {
+    const fraction = snapshot.reserveHours / CALIBRE.powerReserveHours;
+    if (reserveFill) reserveFill.style.transform = `scaleX(${fraction.toFixed(4)})`;
+    if (reserveText) reserveText.textContent = `${snapshot.reserveHours.toFixed(0)} h`;
+    reserve?.setAttribute('aria-valuenow', snapshot.reserveHours.toFixed(1));
+    reserve?.setAttribute('aria-valuetext', `${snapshot.reserveHours.toFixed(0)} hours of running time`);
+    document.body.dataset.time = snapshot.time;
+    document.body.dataset.reserve = snapshot.reserveHours.toFixed(2);
+    play?.setAttribute('aria-label', snapshot.paused ? 'Play the movement' : 'Pause the movement');
+    play?.setAttribute('data-paused', String(snapshot.paused));
+  };
+
   const syncUi = (): void => {
     const snapshot = exhibit.snapshot();
     const entry = snapshot.inspection.id ? partById(snapshot.inspection.id) : null;
@@ -171,17 +183,10 @@ function boot(): void {
       const active = Number(button.dataset.slow) === snapshot.slowMotion;
       button.setAttribute('aria-pressed', String(active));
     });
-    play?.setAttribute('aria-pressed', String(snapshot.paused));
-    play?.setAttribute('aria-label', snapshot.paused ? 'Play the movement' : 'Pause the movement');
     labelsToggle?.setAttribute('aria-pressed', String(snapshot.labels));
     if (explode && document.activeElement !== explode) explode.value = String(Math.round(snapshot.explode * 100));
     if (explodeValue) explodeValue.textContent = String(Math.round(snapshot.explode * 100));
-    const fraction = snapshot.reserveHours / CALIBRE.powerReserveHours;
-    if (reserveFill) reserveFill.style.transform = `scaleX(${fraction.toFixed(4)})`;
-    if (reserveText) reserveText.textContent = `${snapshot.reserveHours.toFixed(0)} h`;
-    reserve?.setAttribute('aria-valuenow', snapshot.reserveHours.toFixed(1));
-    document.body.dataset.time = snapshot.time;
-    document.body.dataset.reserve = snapshot.reserveHours.toFixed(2);
+    syncClock(snapshot);
     document.body.dataset.inspected = snapshot.inspection.id ?? '';
 
     const tour = currentStop(snapshot.tour);
@@ -196,6 +201,7 @@ function boot(): void {
   };
 
   exhibit.subscribe(syncUi);
+  exhibit.onClock(syncClock);
   syncUi();
 
   /* ---------------------------------------------------------------- ready */
@@ -231,6 +237,9 @@ function boot(): void {
     reset: () => exhibit.reset(),
     locate: (id: string) => exhibit.locate(id),
     stats: () => exhibit.stats(),
+    projectPart: (id: string) => exhibit.projectPart(id),
+    pickAtScreen: (x: number, y: number) => exhibit.pickAtScreen(x, y),
+    cameraState: () => exhibit.cameraState(),
     setPartVisible: (id: string, visible: boolean) => exhibit.setPartVisible(id, visible),
     partCount: CATALOGUE.length,
     tourStops: TOUR_STOPS.length,

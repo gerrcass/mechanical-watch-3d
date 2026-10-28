@@ -86,7 +86,7 @@ export function buildPlate(ctx: WatchContext): void {
     engravingCtx.fillText('CALIBRE MW-01', 256, 92);
     engravingCtx.font = '400 30px "SFMono-Regular", Menlo, monospace';
     engravingCtx.letterSpacing = '8px';
-    engravingCtx.fillText('21 JEWELS', 256, 146);
+    engravingCtx.fillText('12 JEWELS', 256, 146);
     engravingCtx.fillText('ADJUSTED', 256, 190);
     const texture = new CanvasTexture(engraving);
     texture.colorSpace = SRGBColorSpace;

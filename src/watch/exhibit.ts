@@ -11,7 +11,7 @@ import { IDLE, reduceInspection, type InspectionEvent, type InspectionState } fr
 import { clamp } from '../calibre/constants';
 import { escapeStepsAt } from '../calibre/escapement';
 import {
-  advanceClock,
+  advanceClockMutable,
   initialClock,
   watchTime,
   windClock,
@@ -94,6 +94,8 @@ export class Exhibit {
   private lastInteraction = 0;
   private readonly labels: Labels | null;
   private readonly listeners = new Set<() => void>();
+  private readonly clockListeners = new Set<(snapshot: ExhibitSnapshot) => void>();
+  private lastClockEmit = 0;
   private homePose: CameraPose = { position: [40, -50, 143], target: [1.5, -1.1, 0.4] };
   private ready = false;
   private frame = 0;
@@ -154,14 +156,24 @@ export class Exhibit {
   private tick(now: number, delta: number): void {
     this.frame += 1;
     if (this.frame % 10 === 0) this.fps = delta > 0 ? 0.85 * this.fps + 0.15 / delta : this.fps;
+    if (this.frame === 180 && this.engine.tier === 'high' && this.fps < 42) {
+      // Sustained slow frames: demote once, and say so in the HUD.
+      this.engine.demote();
+      this.emit();
+    }
 
     if (!this.paused && !this.still) {
-      this.clock = advanceClock(this.clock, delta, this.speed, this.slowMotion);
+      advanceClockMutable(this.clock, delta, this.speed, this.slowMotion);
     }
     if (this.still) {
       this.clock = { displaySeconds: STILL_DISPLAY_SECONDS, reserveHours: 37.4, running: true };
     }
     this.winding = Math.max(0, this.winding - delta * 1.8);
+
+    if (now - this.lastClockEmit > 500) {
+      this.lastClockEmit = now;
+      for (const listener of this.clockListeners) listener(this.snapshot());
+    }
 
     for (const updater of this.ctx.updaters) {
       updater(this.clock.displaySeconds, this.clock.reserveHours, { winding: this.winding });
@@ -178,7 +190,10 @@ export class Exhibit {
     if (this.labels && this.labelsOn) {
       const width = this.canvas.clientWidth;
       const height = this.canvas.clientHeight;
-      this.labels.update(this.camera, width, height);
+      for (const id of ['barrel', 'center-wheel', 'escape-wheel', 'balance-wheel', 'crown', 'chapter-ring']) {
+        this.labels.setLift(id, this.ctx.get(id)?.group.position.z ?? 0);
+      }
+      this.labels.update(this.camera, width, height, width > 1100 ? 380 : 0);
     }
     this.updateHud(now);
   }
@@ -186,7 +201,7 @@ export class Exhibit {
   private applyHome(immediate: boolean): void {
     const fit = fitHome(this.camera.aspect, 24);
     this.homePose = { position: fit.position, target: fit.target };
-    if (immediate) this.flight.flyTo(this.homePose, true);
+    this.flight.flyTo(this.homePose, immediate || this.reducedMotion);
   }
 
   private handleResize = (): void => {
@@ -227,7 +242,8 @@ export class Exhibit {
     this.lastInteraction = performance.now();
   };
 
-  private handlePointerLeave = (): void => {
+  private handlePointerLeave = (event: PointerEvent): void => {
+    if (event.pointerType === 'touch' || event.pointerType === 'pen') return;
     this.pointerInside = false;
     this.pointerDirty = false;
     this.hoveredId = null;
@@ -537,6 +553,12 @@ export class Exhibit {
     return () => this.listeners.delete(listener);
   }
 
+  /** A low-rate clock feed for readouts that must not re-announce the inspector. */
+  onClock(listener: (snapshot: ExhibitSnapshot) => void): () => void {
+    this.clockListeners.add(listener);
+    return () => this.clockListeners.delete(listener);
+  }
+
   private emit(): void {
     for (const listener of this.listeners) listener();
   }
@@ -575,6 +597,33 @@ export class Exhibit {
   }
 
   /** Stats for the HUD and the debug API. */
+  pickAtScreen(x: number, y: number): string | null {
+    return this.idAt(x, y);
+  }
+
+  /** Screen position of a part's anchor, for the browser test's real picking. */
+  projectPart(id: string): { x: number; y: number } | null {
+    const part = this.ctx.get(id);
+    if (!part) return null;
+    const point = part.anchor.clone();
+    point.z += part.group.position.z;
+    point.project(this.camera);
+    const rect = this.canvas.getBoundingClientRect();
+    return {
+      x: rect.left + (point.x * 0.5 + 0.5) * rect.width,
+      y: rect.top + (-point.y * 0.5 + 0.5) * rect.height,
+    };
+  }
+
+  cameraState(): { distance: number; target: [number, number, number]; flying: boolean } {
+    const offset = this.camera.position.clone().sub(this.engine.controls.target);
+    return {
+      distance: offset.length(),
+      target: [this.engine.controls.target.x, this.engine.controls.target.y, this.engine.controls.target.z],
+      flying: this.flight.isActive,
+    };
+  }
+
   /** Debug-only visibility switch, used to inspect assemblies in isolation. */
   setPartVisible(id: string, visible: boolean): void {
     const part = this.ctx.get(id);
@@ -585,7 +634,7 @@ export class Exhibit {
     return {
       fps: this.fps,
       drawCalls: this.engine.sceneDrawCalls(),
-      triangles: this.engine.renderer.info.render.triangles,
+      triangles: this.engine.sceneTriangles(),
       beats: escapeStepsAt(this.clock.displaySeconds),
     };
   }
@@ -596,7 +645,7 @@ export class Exhibit {
     this.hudCallback?.({
       fps: this.fps,
       drawCalls: this.engine.renderer.info.render.calls,
-      triangles: this.engine.renderer.info.render.triangles,
+      triangles: this.engine.sceneTriangles(),
       speed: this.speed,
       slowMotion: this.slowMotion,
       angles,

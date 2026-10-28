@@ -35,9 +35,10 @@ export function beatAt(displaySeconds: number): BeatState {
   const beats = Math.max(0, displaySeconds) * CALIBRE.beatsPerSecond;
   const index = Math.floor(beats);
   const phase = beats - index;
-  // cos peaks at every beat boundary: the escapement releases at the balance's
-  // turning points, which is exactly where a lever escapement unlocks.
-  const balanceDeg = (CALIBRE.balanceAmplitudeDeg / 2) * Math.cos(beats * Math.PI * 2);
+  // A 4 Hz balance completes one oscillation every 250 ms, i.e. one half
+  // oscillation per beat. cos(π · beat) reaches +1, -1, +1 at successive beats:
+  // the escapement releases at each turning point, eight times a second.
+  const balanceDeg = (CALIBRE.balanceAmplitudeDeg / 2) * Math.cos(beats * Math.PI);
   const eased = easeSnap(phase);
   const escapeSteps = index + eased;
   const bank: -1 | 1 = index % 2 === 0 ? -1 : 1;
@@ -75,4 +76,11 @@ export function forkAngle(displaySeconds: number): number {
 /** Hairspring breathing: the inner coil turns with the balance, the outer stud does not. */
 export function hairspringBreath(displaySeconds: number): number {
   return Math.cos(Math.max(0, displaySeconds) * CALIBRE.beatRateHz * Math.PI * 2);
+}
+
+/** Step-index for the small seconds hand: eight steps per second. */
+export function secondsStepAngle(displaySeconds: number): number {
+  // 480 half-beats per minute, 0.75° each: the seconds hand is the train made
+  // visible, so it advances with the escapement rather than sweeping.
+  return -((escapeStepsAt(displaySeconds) % 480) * 0.75 * Math.PI) / 180;
 }

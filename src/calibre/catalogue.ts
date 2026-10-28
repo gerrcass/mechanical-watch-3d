@@ -64,7 +64,7 @@ export const CATALOGUE: readonly PartCatalogueEntry[] = [
     job: 'The foundation of the movement: every wheel, bridge and jewel is mounted on it.',
     detail:
       'MW-01 cuts the plate away between its bearing points so the train stays visible from the dial side. The surface carries perlage — overlapping circles of fine graining that catch the studio light and give oil somewhere to sit away from a pivot.',
-    spec: 'Rhodium-plated brass · 30 mm · 21 jewels',
+    spec: 'Anthracite rhodium · 30.1 mm · 12 jewels',
     explodeBias: 0,
     targets: ['main-plate'],
   },
@@ -76,7 +76,7 @@ export const CATALOGUE: readonly PartCatalogueEntry[] = [
     job: 'Synthetic ruby bearings that let an arbor turn with almost no friction.',
     detail:
       'Each pivot runs in a polished ruby bore, often inside a gold chaton. Ruby is used because it is hard enough to hold an oil film and smooth enough to outlast the brass it sits in; a jewelled movement is a movement that will still run in fifty years.',
-    spec: 'Synthetic corundum · 21 jewels · olive bore',
+    spec: 'Synthetic corundum · 12 jewels · olive bore',
     explodeBias: 0.3,
     targets: ['jewels'],
   },
@@ -88,7 +88,7 @@ export const CATALOGUE: readonly PartCatalogueEntry[] = [
     job: 'They hold the bridges down, and their colour is a heat treatment rather than paint.',
     detail:
       'Steel screws are polished, then heated until a thin oxide film turns the exact peacock blue a watchmaker wants. That film is only a few hundred nanometres thick, so the slot and the bevel change colour as the light moves across them.',
-    spec: 'Blued steel · slot-head · 0.9 mm head',
+    spec: 'Blued steel · slot-head · 0.96–2.7 mm heads',
     explodeBias: 1.5,
     targets: ['screws'],
   },
@@ -148,7 +148,7 @@ export const CATALOGUE: readonly PartCatalogueEntry[] = [
     job: 'The drum that houses the mainspring and carries the wheel that starts the train.',
     detail:
       'The spring is coiled inside the drum; one end is hooked to the drum wall, the other to the arbor. As the spring unwinds it turns the drum, whose 72 teeth drive the center pinion. Seven turns of the barrel is a full 42-hour wind.',
-    spec: '72 teeth · 1 rev / 6 h · 6.4 mm drum',
+    spec: '72 teeth · 1 rev / 6 h · 7.2 mm drum',
     explodeBias: 0,
     targets: ['barrel'],
   },
@@ -160,7 +160,7 @@ export const CATALOGUE: readonly PartCatalogueEntry[] = [
     job: 'The coiled steel ribbon that stores all the energy the watch will ever use.',
     detail:
       'Winding packs the spring tighter against the arbor; running lets it push outward against the drum wall. Its torque is not perfectly constant, which is why a watch is adjusted in several positions rather than one.',
-    spec: 'Blued steel ribbon · 0.11 mm · 7 turns at full wind',
+    spec: 'Blued steel ribbon · 0.09 mm · 7 turns at full wind',
     explodeBias: 0.2,
     targets: ['mainspring'],
   },
@@ -184,7 +184,7 @@ export const CATALOGUE: readonly PartCatalogueEntry[] = [
     job: 'The toothed wheel on the barrel arbor that the crown wheel drives when you wind.',
     detail:
       'Its saw-tooth profile is shaped so the crown wheel can push it one way and the click can stop it going back. Every wind you feel is a series of these teeth passing under the click.',
-    spec: 'Blued steel · 30 teeth · sits on the barrel arbor',
+    spec: 'Blued steel · 22 teeth · sits on the barrel arbor',
     explodeBias: 0.2,
     targets: ['ratchet-wheel'],
   },
@@ -219,8 +219,8 @@ export const CATALOGUE: readonly PartCatalogueEntry[] = [
     layer: 'keyless',
     job: 'It turns the winding force through ninety degrees from the stem to the ratchet.',
     detail:
-      'The stem carries a pinion whose teeth meet the crown wheel at a right angle. The crown wheel then drives the ratchet wheel on the barrel arbor, so the motion of your fingers reaches the mainspring through two meshes.',
-    spec: 'Steel · bevel teeth · 1:1 to ratchet',
+      'The stem ends in a pinion whose teeth meet the crown wheel. The crown wheel then drives the ratchet on the barrel arbor, so the motion of your fingers reaches the mainspring through two meshes.',
+    spec: 'Blued steel · 22 teeth · 1:1 to ratchet',
     explodeBias: 0.05,
     targets: ['crown-wheel'],
   },
@@ -340,7 +340,7 @@ export const CATALOGUE: readonly PartCatalogueEntry[] = [
     job: 'The weighted wheel that swings back and forth and divides time into equal beats.',
     detail:
       'Its inertia and the hairspring’s stiffness set the rate. MW-01 swings through 270° at 4 Hz, which is eight beats a second, and the escapement releases once at each turning point.',
-    spec: 'Rhodium-plated brass · 270° swing · 4 Hz',
+    spec: 'Gilt brass · 270° swing · 4 Hz',
     explodeBias: 1.1,
     targets: ['balance-wheel'],
   },
@@ -352,7 +352,7 @@ export const CATALOGUE: readonly PartCatalogueEntry[] = [
     job: 'The flat spiral spring that returns the balance and sets the watch’s frequency.',
     detail:
       'It is thinner than a human hair and coils and uncoils with every swing, breathing evenly because its outer end is pinned while its inner end turns with the balance. Lengthening it through the regulator slows the watch; shortening it speeds it up.',
-    spec: 'Blued steel · 12 coils · 0.03 mm section',
+    spec: 'Blued steel · 5 coils · 0.03 mm section',
     explodeBias: 1.4,
     targets: ['hairspring'],
   },
@@ -412,7 +412,7 @@ export const CATALOGUE: readonly PartCatalogueEntry[] = [
     job: 'It shows the hour, turning once every twelve hours.',
     detail:
       'The hand is a tapered blade with a polished bevel and a brushed top, so it changes from bright to dark as it crosses the chapter ring. It is friction-fitted to the hour wheel and can be set without moving the train.',
-    spec: 'Rhodium-plated steel · 30° / hour · 8.2 mm',
+    spec: 'Gilt brass · 30° / hour · 9.0 mm',
     explodeBias: 0,
     targets: ['hour-hand'],
   },
@@ -424,7 +424,7 @@ export const CATALOGUE: readonly PartCatalogueEntry[] = [
     job: 'It shows the minute, turning once an hour.',
     detail:
       'Longer and thinner than the hour hand so the two cannot be confused at a glance. Its counterweight is sized to keep the hand balanced on its pipe as the watch changes position.',
-    spec: 'Rhodium-plated steel · 6° / minute · 11.6 mm',
+    spec: 'Gilt brass · 6° / minute · 12.6 mm',
     explodeBias: 0.5,
     targets: ['minute-hand'],
   },
@@ -447,8 +447,8 @@ export const CATALOGUE: readonly PartCatalogueEntry[] = [
     layer: 'chapter',
     job: 'The ring of applied markers that lets you read the hands without hiding the movement.',
     detail:
-      'A skeleton watch cannot use a solid dial, so the hours live on a narrow sapphire ring outside the mechanism. The applied indices are polished and bevelled, and the ring’s underside is sunray-brushed so it lights up from below.',
-    spec: 'Sapphire · applied rhodium indices · 30 mm',
+      'A skeleton watch cannot use a solid dial, so the hours live on a narrow dark-rhodium ring outside the mechanism. The applied gold indices are polished and bevelled, and the ring’s edges are finished with anglage so they catch the light.',
+    spec: 'Dark rhodium · applied gold indices · 30 mm',
     explodeBias: 0,
     targets: ['chapter-ring'],
   },
@@ -460,7 +460,7 @@ export const CATALOGUE: readonly PartCatalogueEntry[] = [
     job: 'The thin ring of polished metal that holds the movement and frames the dial.',
     detail:
       'MW-01 uses an open case with no bezel over the movement, so the band is a frame rather than a lid. Its inner lip carries the movement holder; its outer face is polished to a mirror and left unbrushed.',
-    spec: 'Polished steel · 39.2 mm · 3.4 mm band',
+    spec: 'Champagne gold · 34.0 mm · 1.45 mm band',
     explodeBias: 0,
     targets: ['case-band'],
   },
@@ -484,7 +484,7 @@ export const CATALOGUE: readonly PartCatalogueEntry[] = [
     job: 'The four horns that would take a strap, left bare so the case reads as an object.',
     detail:
       'Each lug is machined with the case band and polished in the same pass, so the grain runs continuously from one into the other. Without a strap they become a compositional device: four points that tell you which way is up.',
-    spec: 'Polished steel · 20 mm between lugs',
+    spec: 'Champagne gold · 11.4 mm between lugs',
     explodeBias: 0.6,
     targets: ['lugs'],
   },
@@ -496,7 +496,7 @@ export const CATALOGUE: readonly PartCatalogueEntry[] = [
     job: 'The fluted button at three o’clock that you turn to wind the mainspring.',
     detail:
       'The flutes give your fingers something to grip against the spring’s resistance. Turning it clockwise winds; pulling it would let the keyless works switch to setting the hands.',
-    spec: 'Polished steel · fluted · 4.6 mm',
+    spec: 'Champagne gold · fluted · 4.6 mm',
     explodeBias: 0.85,
     targets: ['crown'],
   },

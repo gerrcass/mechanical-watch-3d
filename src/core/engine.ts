@@ -203,6 +203,17 @@ export class Engine {
    * number the 250-call budget refers to; post-processing adds its own passes
    * on top and is reported separately.
    */
+  sceneTriangles(): number {
+    let triangles = 0;
+    this.scene.traverseVisible((object) => {
+      if (!(object instanceof Mesh)) return;
+      const geometry = object.geometry;
+      if (geometry.index) triangles += geometry.index.count / 3;
+      else if (geometry.attributes.position) triangles += geometry.attributes.position.count / 3;
+    });
+    return Math.round(triangles);
+  }
+
   sceneDrawCalls(): number {
     let calls = 0;
     this.scene.traverseVisible((object) => {
@@ -230,6 +241,8 @@ export class Engine {
     this.bloom.enabled = settings.bloom;
     this.smaa.enabled = settings.smaa;
     this.gradePass.uniforms.uGrain = { value: 0 };
+    this.studio.keyLight.shadow.map?.dispose();
+    this.studio.keyLight.shadow.map = null;
     this.studio.keyLight.shadow.mapSize.set(1024, 1024);
     this.applySize();
   }
@@ -237,7 +250,7 @@ export class Engine {
   render(deltaSeconds: number): void {
     this.time += deltaSeconds;
     this.controls.update();
-    this.gradePass.uniforms.uTime = { value: this.still ? 0.35 : this.time };
+    (this.gradePass.uniforms.uTime as { value: number }).value = this.still ? 0.35 : this.time;
     this.renderer.info.reset();
     this.composer.render();
   }

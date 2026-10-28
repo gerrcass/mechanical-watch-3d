@@ -2,7 +2,7 @@ import { chromium } from 'playwright-core';
 import { mkdir } from 'node:fs/promises';
 import { spawnSync } from 'node:child_process';
 import path from 'node:path';
-import { CHROMIUM_ARGS, CHROMIUM_PATH, startPreview } from './serve.mjs';
+import { CHROMIUM_ARGS, resolveChromium, startPreview } from './serve.mjs';
 
 const root = path.resolve(new URL('..', import.meta.url).pathname);
 const evidence = path.join(root, 'docs', 'evidence');
@@ -16,7 +16,7 @@ if (build.status !== 0) {
 await mkdir(evidence, { recursive: true });
 const server = await startPreview();
 const browser = await chromium.launch({
-  executablePath: CHROMIUM_PATH,
+  executablePath: resolveChromium(),
   args: CHROMIUM_ARGS,
   headless: true,
 });

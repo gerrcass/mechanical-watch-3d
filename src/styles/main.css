@@ -288,6 +288,11 @@ button {
   cursor: pointer;
 }
 
+button[aria-disabled='true'] {
+  opacity: 0.4;
+  cursor: default;
+}
+
 button:focus-visible,
 input:focus-visible {
   outline: 1px solid var(--champagne);
@@ -411,7 +416,7 @@ input:focus-visible {
   border-right: 0.3rem solid var(--ivory-dim);
 }
 
-.icon-button[aria-pressed='true'] .play-glyph {
+.icon-button[data-paused='true'] .play-glyph {
   width: 0;
   height: 0;
   border: 0;

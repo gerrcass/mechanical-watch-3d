@@ -89,7 +89,7 @@ export function buildCase(ctx: WatchContext): void {
       bevelSegments: 2,
       curveSegments: 120,
     }),
-    ['polishedSteel', 'anglage'],
+    ['gold', 'anglage'],
   );
   bezel.position.z = 3.32;
 
@@ -99,6 +99,8 @@ export function buildCase(ctx: WatchContext): void {
   dome.rotation.x = Math.PI / 2;
   dome.position.z = 3.42;
   dome.renderOrder = 10;
+  // Glass is an occluder, not an answer: a pick must reach the part behind it.
+  dome.raycast = () => undefined;
   crystalBuild.add(dome);
 
   // A polished aperture ring at the movement edge, where the plate meets the
@@ -107,9 +109,9 @@ export function buildCase(ctx: WatchContext): void {
   rim.position.z = 3.09;
 
   // The crown neck, a short polished tube from the band to the fluted crown.
-  const neck = bandBuild.mesh(new CylinderGeometry(0.95, 1.0, 2.6, 24), 'polishedSteel');
+  const neck = bandBuild.mesh(new CylinderGeometry(0.95, 1.0, 3.4, 24), 'gold');
   neck.rotation.z = Math.PI / 2;
-  neck.position.set(18.3, 0.55, 1.1);
+  neck.position.set(19.5, 0.8, 1.55);
 }
 
 /** A lug horn: wide where it meets the band, tapered to a rounded tip. */

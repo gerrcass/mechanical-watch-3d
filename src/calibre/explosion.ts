@@ -12,7 +12,7 @@ import { PART_LAYERS, type AssemblyLayer, type PartCatalogueEntry } from './cata
 export const LAYER_ORDER: readonly AssemblyLayer[] = PART_LAYERS;
 
 export const LAYER_SHIFT: Readonly<Record<AssemblyLayer, number>> = {
-  keyless: -4.5,
+  keyless: -6.5,
   plate: 0,
   train: 1.2,
   escapement: 2.8,

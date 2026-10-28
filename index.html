@@ -33,7 +33,7 @@
 
         <aside class="inspector" id="inspector" aria-live="polite" aria-atomic="true" aria-label="Inspector"></aside>
 
-        <section class="tour" id="tour" hidden aria-label="Guided tour">
+        <section class="tour" id="tour" hidden aria-label="Guided tour" role="status" aria-live="polite" aria-atomic="true">
           <p class="tour-step" id="tour-step">01 · Power</p>
           <p class="tour-copy" id="tour-copy"></p>
           <div class="tour-actions">
@@ -57,7 +57,7 @@
 
         <footer class="dock" aria-label="Exhibit controls">
           <div class="dock-group dock-time">
-            <button type="button" class="icon-button" id="play" aria-pressed="false" aria-label="Pause the movement">
+            <button type="button" class="icon-button" id="play" data-paused="false" aria-label="Pause the movement">
               <span class="play-glyph" aria-hidden="true"></span>
             </button>
             <div class="seg" role="group" aria-label="Display speed">

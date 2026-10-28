@@ -1,5 +1,5 @@
 import { chromium } from 'playwright-core';
-import { CHROMIUM_ARGS, CHROMIUM_PATH, startPreview } from '../scripts/serve.mjs';
+import { CHROMIUM_ARGS, resolveChromium, startPreview } from '../scripts/serve.mjs';
 
 /**
  * Browser smoke test at the top seam: the built artefact boots, the canvas has
@@ -8,7 +8,7 @@ import { CHROMIUM_ARGS, CHROMIUM_PATH, startPreview } from '../scripts/serve.mjs
  */
 const server = await startPreview(4174);
 const browser = await chromium.launch({
-  executablePath: CHROMIUM_PATH,
+  executablePath: resolveChromium(),
   args: CHROMIUM_ARGS,
   headless: true,
 });
@@ -34,12 +34,35 @@ try {
   await page.goto(server.url, { waitUntil: 'networkidle' });
   await page.waitForFunction(() => window.__openMovement !== undefined, null, { timeout: 30_000 });
   await page.waitForFunction(() => document.querySelector('#app')?.getAttribute('data-ready') === 'true');
+  // The loading veil is still fading and would intercept the first hover.
+  await page.waitForFunction(() => document.querySelector('#veil')?.classList.contains('is-gone'));
+  await page.waitForTimeout(2200);
 
   const buffer = await page.evaluate(() => {
     const canvas = document.querySelector('#scene');
     return { width: canvas.width, height: canvas.height };
   });
   check(buffer.width > 0 && buffer.height > 0, 'canvas has a non-zero drawing buffer');
+
+  // Real pointer path: the crystal must not eat the pick.
+  const balancePoint = await page.evaluate(() => window.__openMovement.projectPart('balance-wheel'));
+  if (balancePoint) {
+    await page.mouse.move(balancePoint.x, balancePoint.y, { steps: 4 });
+    await page.waitForTimeout(1200);
+    await page.mouse.move(balancePoint.x + 1, balancePoint.y + 1, { steps: 2 });
+    await page.waitForFunction(
+      () => window.__openMovement.getState().inspection.id !== null,
+      null,
+      { timeout: 15_000 },
+    );
+    const hovered = await page.evaluate(() => window.__openMovement.getState());
+    check(
+      hovered.inspection.id !== null && hovered.inspection.id !== 'crystal',
+      `real pointer reaches a movement part through the crystal (got ${hovered.inspection.id})`,
+    );
+  } else {
+    check(false, 'balance-wheel anchor projects on screen');
+  }
 
   await page.evaluate(() => window.__openMovement.inspect('balance-wheel'));
   const state = await page.evaluate(() => window.__openMovement.getState());
@@ -63,8 +86,17 @@ try {
   check(exploded.explode === 1, 'explosion is exposed on the debug API');
 
   const stats = await page.evaluate(() => window.__openMovement.stats());
-  check(stats.drawCalls > 0, `draw calls measured (${stats.drawCalls})`);
-  check(stats.triangles > 0, `triangles measured (${stats.triangles})`);
+  check(stats.drawCalls > 0 && stats.drawCalls <= 250, `scene draw calls within budget (${stats.drawCalls} <= 250)`);
+  check(stats.triangles > 0 && stats.triangles <= 350_000, `triangles within budget (${stats.triangles} <= 350000)`);
+
+  await page.evaluate(() => window.__openMovement.locate('balance-wheel'));
+  await page.waitForFunction(() => window.__openMovement.cameraState().flying === false, null, { timeout: 15_000 });
+  const located = await page.evaluate(() => window.__openMovement.cameraState());
+  await page.evaluate(() => window.__openMovement.reset());
+  await page.waitForFunction(() => window.__openMovement.cameraState().flying === false, null, { timeout: 15_000 });
+  const reset = await page.evaluate(() => window.__openMovement.cameraState());
+  check(located.distance < 80, `locate frames the part (${located.distance.toFixed(0)} mm)`);
+  check(reset.distance > 100, `reset restores a hero-scale camera (${reset.distance.toFixed(0)} mm)`);
 
   check(errors.length === 0, `no console errors${errors.length ? `: ${errors[0]}` : ''}`);
 

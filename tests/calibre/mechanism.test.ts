@@ -106,8 +106,14 @@ describe('beat schedule', () => {
     const samples = Array.from({ length: 401 }, (_, i) => beatAt(i / 400).balanceDeg);
     expect(Math.max(...samples)).toBeCloseTo(135, 6);
     expect(Math.min(...samples)).toBeCloseTo(-135, 6);
-    // One full oscillation in 250 ms.
+    // One full oscillation in 250 ms: half a beat later the balance is at the
+    // opposite extreme, and a whole beat later it is back.
     close(beatAt(0.25).balanceDeg, beatAt(0).balanceDeg);
+    // 4 Hz: an extreme at every beat (0.125 s), the centre at a half beat.
+    // An 8 Hz bug would put the opposite extreme at 0.0625 s.
+    close(beatAt(0.0625).balanceDeg, 0);
+    close(beatAt(0.03125).balanceDeg, 135 * Math.SQRT1_2);
+    close(beatAt(0.125).balanceDeg, -beatAt(0).balanceDeg);
   });
 
   it('snaps the fork between two banks, alternating on each beat', () => {

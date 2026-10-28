@@ -4,6 +4,7 @@ interface LabelAnchor {
   readonly id: string;
   readonly text: string;
   readonly position: Vector3;
+  baseZ: number;
 }
 
 /**
@@ -28,7 +29,7 @@ export class Labels {
     element.textContent = text;
     this.root.append(element);
     this.elements.set(id, element);
-    this.anchors.push({ id, text, position });
+    this.anchors.push({ id, text, position, baseZ: position.z });
   }
 
   setVisible(visible: boolean): void {
@@ -36,7 +37,12 @@ export class Labels {
     this.root.classList.toggle('is-visible', visible);
   }
 
-  update(camera: PerspectiveCamera, width: number, height: number): void {
+  setLift(id: string, z: number): void {
+    const anchor = this.anchors.find((candidate) => candidate.id === id);
+    if (anchor) anchor.position.z = anchor.baseZ + z;
+  }
+
+  update(camera: PerspectiveCamera, width: number, height: number, rightInset = 0): void {
     if (!this.visible) return;
     for (const anchor of this.anchors) {
       const element = this.elements.get(anchor.id);
@@ -45,7 +51,7 @@ export class Labels {
       const behind = this.projected.z > 1;
       const x = (this.projected.x * 0.5 + 0.5) * width;
       const y = (-this.projected.y * 0.5 + 0.5) * height;
-      if (behind || x < 60 || x > width - 60 || y < 40 || y > height - 40) {
+      if (behind || x < 60 || x > width - 60 - rightInset || y < 40 || y > height - 40) {
         element.style.opacity = '0';
         continue;
       }
