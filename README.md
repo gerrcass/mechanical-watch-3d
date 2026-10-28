@@ -4,7 +4,7 @@
 
 **Calibre MW-01** — an interactive, procedurally modelled skeleton watch that explains itself on hover.
 
-[**Open the exhibit**](https://gerrcass.github.io/mechanical-watch-3d/) · [Spec](docs/spec.md) · [Tickets](docs/tickets.md) · [Glossary](GLOSSARY.md)
+[**Live exhibit**](https://gerrcass.github.io/mechanical-watch-3d/) — deployed by the Pages workflow on merge to `main` · [Spec](docs/spec.md) · [Tickets](docs/tickets.md) · [Glossary](GLOSSARY.md)
 
 ![Calibre MW-01 at the hero angle: a champagne-gold case, a dark skeletonised movement with gilt wheels and a gold balance](docs/evidence/hero.png)
 
@@ -56,12 +56,12 @@ Everything is generated at boot. There are no models, textures, HDRs or runtime 
 
 Measured from `window.__openMovement.stats()` on the production build:
 
-- **193 scene draw calls** (budget 250).
-- **309,650 triangles** (budget 350k).
+- **193 scene draw calls** (budget 250). The full pipeline, including the shadow map and post passes, reports ~406 calls through `renderer.info`; the budget figure is the scene's structural count, which is what the smoke test enforces.
+- **154,982 triangles** in the scene (309,650 rendered including the shadow pass, still inside the 350k triangle budget).
 - No per-frame allocation in the render loop; geometry and materials are built once, and the inspector dims shared per-part material instances rather than rebuilding the scene.
-- `high` and `lite` tiers. `lite` caps DPR at 1.5, halves bloom, disables grain and SMAA and uses a 1024² shadow map. Small viewports and coarse pointers select it automatically.
+- `high` and `lite` tiers. `lite` caps DPR at 1.5, halves bloom, disables grain and SMAA and uses a 1024² shadow map. Small viewports and coarse pointers select it automatically; the loop demotes after sustained slow frames.
 
-The headless CI environment renders with SwiftShader (software), so its frame rate is not representative of a GPU. The structural budget is enforced by the smoke test.
+The headless capture environment renders with SwiftShader (software), so its frame rate is not representative of a GPU and 60 fps is not claimed from it. The structural budget is enforced by the smoke test.
 
 ## Accessibility and resilience
 
@@ -84,7 +84,7 @@ npm run lint       # tsc --noEmit + eslint
 npm run shot       # build, preview, write docs/evidence/{hero,hover,exploded}.png
 ```
 
-The browser tests and screenshots use `playwright-core` with the system Chromium (`/usr/bin/chromium-browser`) and SwiftShader. They never download a browser.
+The browser tests and screenshots use `playwright-core`. Locally they drive the system Chromium (`/usr/bin/chromium-browser`) with SwiftShader; CI installs Playwright's managed Chromium and the resolver falls back to it. No browser is downloaded during a local `npm run shot`.
 
 ## Evidence
 
