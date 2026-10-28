@@ -92,6 +92,7 @@ The browser tests and screenshots use `playwright-core`. Locally they drive the 
 - [Hover](docs/evidence/hover.png) — a part previewed, with its inspector card.
 - [Exploded](docs/evidence/exploded.png) — the assembly separated along the watch axis.
 - [Review round 1](docs/evidence/review-round-1.md) · [Review round 2](docs/evidence/review-round-2.md) · [Review round 3](docs/evidence/review-round-3.md).
+- [Retro](docs/retro/2026-10-28-open-movement.md) — the environment lessons from the build.
 
 ## Architecture
 
